@@ -53,6 +53,10 @@
 #include "config/tutoriales.h"
 #include "tutoriales/minijuego_zubat.h"
 
+#if (DECAP_ENABLED) && (DECAP_MIRRORING) && !(DECAP_START_MENU)
+#define AddTextPrinterParameterized (AddTextPrinterFixedCaseParameterized)
+#endif
+
 // Menu actions
 enum
 {
