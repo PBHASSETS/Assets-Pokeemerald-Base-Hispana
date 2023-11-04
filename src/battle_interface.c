@@ -964,7 +964,7 @@ static void UpdateLvlInHealthbox(u8 healthboxSpriteId, u8 lvl)
         objVram = (void *)(OBJ_VRAM0);
         objVram += spriteTileNum + 0x400;
     }
-    //TextIntoHealthboxObject(objVram, windowTileData, 3);
+    TextIntoHealthboxObject(objVram, windowTileData, 3); //PRINTEAR LV DEL PKMN
     RemoveWindowOnHealthbox(windowId);
 }
 
