@@ -178,6 +178,8 @@ struct Time
 
 struct SaveBlock3
 {
+    u8 dexNavSearchLevels[NUM_SPECIES];
+    u8 dexNavChain;
 #if OW_USE_FAKE_RTC
     struct Time fakeRTC;
 #endif
