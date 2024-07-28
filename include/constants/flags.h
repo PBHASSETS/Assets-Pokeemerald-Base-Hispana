@@ -1390,10 +1390,10 @@
 #define FLAG_SYS_DEXNAV_SEARCH                      (SYSTEM_FLAGS + 0x21)
 #define FLAG_SHINY_CREATION                         (SYSTEM_FLAGS + 0x22)   // force creation of a shiny mon
 #define FLAG_EON_LATI                               (SYSTEM_FLAGS + 0x23)
-#define FLAG_UNUSED_0x884                           (SYSTEM_FLAGS + 0x24) // Unused Flag
-#define FLAG_UNUSED_0x885                           (SYSTEM_FLAGS + 0x25) // Unused Flag
-#define FLAG_UNUSED_0x886                           (SYSTEM_FLAGS + 0x26) // Unused Flag
-#define FLAG_UNUSED_0x887                           (SYSTEM_FLAGS + 0x27) // Unused Flag
+#define FLAG_VISITED_TWO_ISLAND                           (SYSTEM_FLAGS + 0x24) // Unused Flag
+#define FLAG_VISITED_THREE_ISLAND                           (SYSTEM_FLAGS + 0x25) // Unused Flag
+#define FLAG_VISITED_FOUR_ISLAND                           (SYSTEM_FLAGS + 0x26) // Unused Flag
+#define FLAG_VISITED_FIVE_ISLAND                           (SYSTEM_FLAGS + 0x27) // Unused Flag
 
 #define FLAG_SYS_USE_FLASH                          (SYSTEM_FLAGS + 0x28)
 #define FLAG_SYS_USE_STRENGTH                       (SYSTEM_FLAGS + 0x29)
@@ -1541,9 +1541,9 @@
 #define FLAG_VISITED_ROUTE133                       (SYSTEM_FLAGS + 0xA5) 
 #define FLAG_VISITED_ROUTE134                       (SYSTEM_FLAGS + 0xA6) 
 #define FLAG_VISITED_MT_CHIMNEY                     (SYSTEM_FLAGS + 0xA7)
-#define FLAG_UNUSED_0x908                           (SYSTEM_FLAGS + 0xA8) // Unused Flag
-#define FLAG_UNUSED_0x909                           (SYSTEM_FLAGS + 0xA9) // Unused Flag
-#define FLAG_UNUSED_0x90A                           (SYSTEM_FLAGS + 0xAA) // Unused Flag
+#define FLAG_VISITED_SIX_ISLAND                           (SYSTEM_FLAGS + 0xA8) // Unused Flag
+#define FLAG_VISITED_SEVEN_ISLAND                           (SYSTEM_FLAGS + 0xA9) // Unused Flag
+#define FLAG_VISITED_ONE_ISLAND                          (SYSTEM_FLAGS + 0xAA) // Unused Flag
 #define FLAG_UNUSED_0x90B                           (SYSTEM_FLAGS + 0xAB) // Unused Flag
 #define FLAG_UNUSED_0x90C                           (SYSTEM_FLAGS + 0xAC) // Unused Flag
 #define FLAG_UNUSED_0x90D                           (SYSTEM_FLAGS + 0xAD) // Unused Flag

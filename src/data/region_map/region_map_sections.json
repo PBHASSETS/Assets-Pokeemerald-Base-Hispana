@@ -1153,97 +1153,97 @@
     {
       "map_section": "MAPSEC_ONE_ISLAND",
       "name": "Isla Prima",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 5,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_TWO_ISLAND",
       "name": "Isla Secunda",
-      "x": 0,
-      "y": 0,
+      "x": 9,
+      "y": 6,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_THREE_ISLAND",
       "name": "Isla Tera",
-      "x": 0,
-      "y": 0,
+      "x": 18,
+      "y": 9,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_FOUR_ISLAND",
       "name": "Isla Quarta",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 1,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_FIVE_ISLAND",
       "name": "Isla Inta",
-      "x": 0,
-      "y": 0,
+      "x": 14,
+      "y": 8,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_SEVEN_ISLAND",
       "name": "Isla Sétima",
-      "x": 0,
-      "y": 0,
+      "x": 3,
+      "y": 8,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_SIX_ISLAND",
       "name": "Isla Exta",
-      "x": 0,
-      "y": 0,
+      "x": 15,
+      "y": 5,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_KINDLE_ROAD",
       "name": "Camino Candente",
-      "x": 0,
+      "x": 2,
       "y": 0,
       "width": 1,
-      "height": 1
+      "height": 6
     },
     {
       "map_section": "MAPSEC_TREASURE_BEACH",
       "name": "Playa Tesoro",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 6,
       "width": 1,
-      "height": 1
+      "height": 2
     },
     {
       "map_section": "MAPSEC_CAPE_BRINK",
       "name": "Cabo Extremo",
-      "x": 0,
-      "y": 0,
+      "x": 9,
+      "y": 4,
       "width": 1,
-      "height": 1
+      "height": 2
     },
     {
       "map_section": "MAPSEC_BOND_BRIDGE",
       "name": "Puente Unión",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 14,
+      "y": 9,
+      "width": 4,
       "height": 1
     },
     {
       "map_section": "MAPSEC_THREE_ISLE_PORT",
       "name": "Puerto de Isla Tera",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 18,
+      "y": 10,
+      "width": 2,
       "height": 1
     },
     {
@@ -1281,97 +1281,97 @@
     {
       "map_section": "MAPSEC_RESORT_GORGEOUS",
       "name": "Lugar de recreo",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 14,
+      "y": 6,
+      "width": 3,
       "height": 1
     },
     {
       "map_section": "MAPSEC_WATER_LABYRINTH",
       "name": "Aquarinto",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 12,
+      "y": 7,
+      "width": 3,
       "height": 1
     },
     {
       "map_section": "MAPSEC_FIVE_ISLE_MEADOW",
       "name": "Prado de Isla Inta",
-      "x": 0,
-      "y": 0,
+      "x": 15,
+      "y": 8,
       "width": 1,
-      "height": 1
+      "height": 2
     },
     {
       "map_section": "MAPSEC_MEMORIAL_PILLAR",
       "name": "Pilar Recuerdo",
-      "x": 0,
-      "y": 0,
+      "x": 16,
+      "y": 9,
       "width": 1,
-      "height": 1
+      "height": 3
     },
     {
       "map_section": "MAPSEC_OUTCAST_ISLAND",
       "name": "Isla Aislada",
-      "x": 0,
+      "x": 13,
       "y": 0,
       "width": 1,
-      "height": 1
+      "height": 3
     },
     {
       "map_section": "MAPSEC_GREEN_PATH",
       "name": "Vía Verde",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 13,
+      "y": 3,
+      "width": 3,
       "height": 1
     },
     {
       "map_section": "MAPSEC_WATER_PATH",
       "name": "Vía Acuática",
-      "x": 0,
-      "y": 0,
+      "x": 16,
+      "y": 3,
       "width": 1,
-      "height": 1
+      "height": 5
     },
     {
       "map_section": "MAPSEC_RUIN_VALLEY",
       "name": "Valle Ruinas",
-      "x": 0,
-      "y": 0,
-      "width": 1,
-      "height": 1
+      "x": 14,
+      "y": 7,
+      "width": 2,
+      "height": 2
     },
     {
       "map_section": "MAPSEC_TRAINER_TOWER",
       "name": "Torre Desafío",
-      "x": 0,
-      "y": 0,
+      "x": 3,
+      "y": 6,
       "width": 1,
-      "height": 1
+      "height": 2
     },
     {
       "map_section": "MAPSEC_CANYON_ENTRANCE",
       "name": "Entrada al Cañón",
-      "x": 0,
-      "y": 0,
+      "x": 3,
+      "y": 9,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_SEVAULT_CANYON",
       "name": "Cañón Sétano",
-      "x": 0,
-      "y": 0,
+      "x": 4,
+      "y": 9,
       "width": 1,
-      "height": 1
+      "height": 3
     },
     {
       "map_section": "MAPSEC_TANOBY_RUINS",
       "name": "Ruinas Sete",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 1,
+      "y": 12,
+      "width": 7,
       "height": 1
     },
     {
@@ -1409,7 +1409,7 @@
     {
       "map_section": "MAPSEC_MT_EMBER",
       "name": "Monte Ascuas",
-      "x": 0,
+      "x": 2,
       "y": 0,
       "width": 1,
       "height": 1
@@ -1417,24 +1417,24 @@
     {
       "map_section": "MAPSEC_BERRY_FOREST",
       "name": "Bosque Baya",
-      "x": 0,
-      "y": 0,
+      "x": 14,
+      "y": 9,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_ICEFALL_CAVE",
       "name": "Cueva Glaciada",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 1,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_ROCKET_WAREHOUSE",
       "name": "Almacén Rocket",
-      "x": 0,
-      "y": 0,
+      "x": 15,
+      "y": 8,
       "width": 1,
       "height": 1
     },
@@ -1450,31 +1450,31 @@
     {
       "map_section": "MAPSEC_DOTTED_HOLE",
       "name": "Cueva Punteada",
-      "x": 0,
-      "y": 0,
+      "x": 14,
+      "y": 8,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_LOST_CAVE",
       "name": "Cueva Perdida",
-      "x": 0,
-      "y": 0,
+      "x": 16,
+      "y": 6,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_PATTERN_BUSH",
       "name": "Bosquejo",
-      "x": 0,
-      "y": 0,
+      "x": 15,
+      "y": 3,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_ALTERING_CAVE_FRLG",
       "name": "Cueva Cambiante",
-      "x": 0,
+      "x": 13,
       "y": 0,
       "width": 1,
       "height": 1
@@ -1482,24 +1482,24 @@
     {
       "map_section": "MAPSEC_TANOBY_CHAMBERS",
       "name": "Cámaras Sete",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 1,
+      "y": 12,
+      "width": 7,
       "height": 1
     },
     {
       "map_section": "MAPSEC_THREE_ISLE_PATH",
       "name": "Camino de Isla Tera",
-      "x": 0,
-      "y": 0,
-      "width": 1,
+      "x": 18,
+      "y": 10,
+      "width": 2,
       "height": 1
     },
     {
       "map_section": "MAPSEC_TANOBY_KEY",
       "name": "Llave Sete",
-      "x": 0,
-      "y": 0,
+      "x": 4,
+      "y": 9,
       "width": 1,
       "height": 1
     },
@@ -1514,64 +1514,64 @@
     {
       "map_section": "MAPSEC_MONEAN_CHAMBER",
       "name": "Cámara Anémuna",
-      "x": 0,
-      "y": 0,
+      "x": 7,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_LIPTOO_CHAMBER",
       "name": "Cámara Tulipdos",
-      "x": 0,
-      "y": 0,
+      "x": 6,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_WEEPTH_CHAMBER",
       "name": "Cámara Tristante",
-      "x": 0,
-      "y": 0,
+      "x": 5,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_DILFORD_CHAMBER",
       "name": "Cámara Quarciso",
-      "x": 0,
-      "y": 0,
+      "x": 4,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_SCUFIB_CHAMBER",
       "name": "Cámara Hibinca",
-      "x": 0,
-      "y": 0,
+      "x": 3,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_RIXY_CHAMBER",
       "name": "Cámara Seiris",
-      "x": 0,
-      "y": 0,
+      "x": 2,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_VIAPOIS_CHAMBER",
       "name": "Cámara Pasiete",
-      "x": 0,
-      "y": 0,
+      "x": 1,
+      "y": 12,
       "width": 1,
       "height": 1
     },
     {
       "map_section": "MAPSEC_EMBER_SPA",
       "name": "Balneario Ascuas",
-      "x": 0,
-      "y": 0,
+      "x": 2,
+      "y": 3,
       "width": 1,
       "height": 1
     },
@@ -1610,8 +1610,8 @@
     {
       "map_section": "MAPSEC_BIRTH_ISLAND",
       "name": "Isla Origen",
-      "x": 0,
-      "y": 0,
+      "x": 16,
+      "y": 13,
       "width": 1,
       "height": 1
     },
@@ -1698,8 +1698,8 @@
     {
       "map_section": "MAPSEC_NAVEL_ROCK",
       "name": "Roca Ombligo",
-      "x": 0,
-      "y": 0,
+      "x": 8,
+      "y": 5,
       "width": 1,
       "height": 1
     },

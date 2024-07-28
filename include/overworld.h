@@ -156,4 +156,12 @@ bool32 IsSendingKeysOverCable(void);
 void ClearLinkPlayerObjectEvents(void);
 void CB2_ReturnToFullScreenStartMenu(void);
 
+enum {
+    REGION_HOENN,
+    REGION_KANTO,
+    REGION_SEVII123,
+    REGION_SEVII45,
+    REGION_SEVII67
+};
+
 #endif // GUARD_OVERWORLD_H

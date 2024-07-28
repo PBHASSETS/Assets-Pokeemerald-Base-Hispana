@@ -119,13 +119,20 @@ static const u32 sRegionMapCursorSmallGfxLZ[] = INCBIN_U32("graphics/pokenav/reg
 static const u32 sRegionMapCursorLargeGfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/cursor_large.4bpp.lz");
 const u16 sRegionMapBg_Pal[] = INCBIN_U16("graphics/pokenav/region_map/map.gbapal");
 const u32 sRegionMapBg_GfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/map.8bpp.lz");
-const u32 sRegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/map.bin.lz");
+static const u32 sSeviiRegionMapsBg_GfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/region_map.8bpp.lz");
+static const u32 sRegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/map.bin.lz");
+static const u32 sSevii123RegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/sevii_123.bin.lz");
+static const u32 sSevii45RegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/sevii_45.bin.lz");
+static const u32 sSevii67RegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/sevii_67.bin.lz");
 static const u16 sRegionMapPlayerIcon_BrendanPal[] = INCBIN_U16("graphics/pokenav/region_map/brendan_icon.gbapal");
 static const u8 sRegionMapPlayerIcon_BrendanGfx[] = INCBIN_U8("graphics/pokenav/region_map/brendan_icon.4bpp");
 static const u16 sRegionMapPlayerIcon_MayPal[] = INCBIN_U16("graphics/pokenav/region_map/may_icon.gbapal");
 static const u8 sRegionMapPlayerIcon_MayGfx[] = INCBIN_U8("graphics/pokenav/region_map/may_icon.4bpp");
 
 #include "data/region_map/region_map_layout.h"
+#include "data/region_map/region_map_layout_sevii123.h"
+#include "data/region_map/region_map_layout_sevii45.h"
+#include "data/region_map/region_map_layout_sevii67.h"
 #include "data/region_map/region_map_entries.h"
 
 static const u16 sRegionMap_SpecialPlaceLocations[][2] =
@@ -544,25 +551,82 @@ bool8 LoadRegionMapGfx(void)
     switch (sRegionMap->initStep)
     {
     case 0:
-        if (sRegionMap->bgManaged)
-            DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sRegionMapBg_GfxLZ, 0, 0, 0);
-        else
-            LZ77UnCompVram(sRegionMapBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
+        switch (gMapHeader.region)
+        {
+        case REGION_HOENN:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sRegionMapBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sRegionMapBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
+            break;
+        case REGION_SEVII123:
+        case REGION_SEVII45:
+        case REGION_SEVII67:
+        default:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSeviiRegionMapsBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sSeviiRegionMapsBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
+            break;
+        }
         break;
     case 1:
-        if (sRegionMap->bgManaged)
+        switch (gMapHeader.region)
         {
-            if (!FreeTempTileDataBuffersIfPossible())
-                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sRegionMapBg_TilemapLZ, 0, 0, 1);
-        }
-        else
-        {
-            LZ77UnCompVram(sRegionMapBg_TilemapLZ, (u16 *)BG_SCREEN_ADDR(28));
-        }
+        case REGION_HOENN:
+            if (sRegionMap->bgManaged)
+            {
+                if (!FreeTempTileDataBuffersIfPossible())
+                    DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sRegionMapBg_TilemapLZ, 0, 0, 1);
+            }
+            else
+            {
+                LZ77UnCompVram(sRegionMapBg_TilemapLZ, (u16 *)BG_SCREEN_ADDR(28));
+            }
+            break;
+        case REGION_SEVII123:
+            if (sRegionMap->bgManaged)
+            {
+                if (!FreeTempTileDataBuffersIfPossible())
+                    DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSevii123RegionMapBg_TilemapLZ, 0, 0, 1);
+            }
+            else
+            {
+                LZ77UnCompVram(sSevii123RegionMapBg_TilemapLZ, (u16 *)BG_SCREEN_ADDR(28));
+            }
+            break;
+        case REGION_SEVII45:
+            if (sRegionMap->bgManaged)
+            {
+                if (!FreeTempTileDataBuffersIfPossible())
+                {
+                    DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSevii45RegionMapBg_TilemapLZ, 0, 0, 1);
+                }
+            }
+            else
+            {    
+                LZ77UnCompVram(sSevii45RegionMapBg_TilemapLZ, (u16 *)BG_SCREEN_ADDR(28));
+            }
+            break;
+        case REGION_SEVII67:
+            if (sRegionMap->bgManaged)
+            {
+                if (!FreeTempTileDataBuffersIfPossible())
+                    DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSevii67RegionMapBg_TilemapLZ, 0, 0, 1);
+            }
+            else
+            {
+                LZ77UnCompVram(sSevii67RegionMapBg_TilemapLZ, (u16 *)BG_SCREEN_ADDR(28));
+            }
+            break;
+        default:
+            break;
+        };
         break;
     case 2:
         if (!FreeTempTileDataBuffersIfPossible())
             LoadPalette(sRegionMapBg_Pal, BG_PLTT_ID(7), 3 * PLTT_SIZE_4BPP);
+
         break;
     case 3:
         LZ77UnCompWram(sRegionMapCursorSmallGfxLZ, sRegionMap->cursorSmallImage);
@@ -960,7 +1024,19 @@ static u16 GetMapSecIdAt(u16 x, u16 y)
     }
     y -= MAPCURSOR_Y_MIN;
     x -= MAPCURSOR_X_MIN;
-    return sRegionMap_MapSectionLayout[y][x];
+    switch (gMapHeader.region)
+    {
+        case REGION_HOENN:
+            return sRegionMap_MapSectionLayout[y][x];
+        case REGION_SEVII123:
+            return sRegionMap_MapSectionLayoutSevii123[y][x];
+        case REGION_SEVII45:
+            return sRegionMap_MapSectionLayoutSevii45[y][x];
+        case REGION_SEVII67:
+            return sRegionMap_MapSectionLayoutSevii67[y][x];
+        default:
+            return MAPSEC_NONE; // Retorna un valor por defecto si no se encuentra la región.
+    }
 }
 
 void RegionMap_GetSectionCoordsFromCurrFieldPos(u16* mapSectionId, u16* cursorPosX, u16* cursorPosY, bool8* playerIsInCave)
@@ -1212,6 +1288,18 @@ u8 GetMapsecType(u16 mapSecId)
             return FlagGet(FLAG_VISITED_SOOTOPOLIS_CITY) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
         case MAPSEC_EVER_GRANDE_CITY:
             return FlagGet(FLAG_VISITED_EVER_GRANDE_CITY) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_TWO_ISLAND:
+        return FlagGet(FLAG_VISITED_TWO_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_THREE_ISLAND:
+        return FlagGet(FLAG_VISITED_THREE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_FOUR_ISLAND:
+        return FlagGet(FLAG_VISITED_FOUR_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_FIVE_ISLAND:
+        return FlagGet(FLAG_VISITED_FIVE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_SIX_ISLAND:
+        return FlagGet(FLAG_VISITED_SIX_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+    case MAPSEC_SEVEN_ISLAND:
+        return FlagGet(FLAG_VISITED_SEVEN_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
         case MAPSEC_BATTLE_FRONTIER:
             return FlagGet(FLAG_LANDMARK_BATTLE_FRONTIER) ? MAPSECTYPE_BATTLE_FRONTIER : MAPSECTYPE_NONE;
         case MAPSEC_SOUTHERN_ISLAND:
@@ -1899,8 +1987,10 @@ static void LoadFlyDestIcons(void)
 
 static void CreateFlyDestIcons(void)
 {
-    u16 canFlyFlag;
+    u16 canFlyFlag = 0; // Inicialización para evitar problemas.
     u16 mapSecId;
+    u16 mapSecStart = 0; // Valores iniciales predeterminados.
+    u16 mapSecEnd = 0;
     u16 x;
     u16 y;
     u16 width;
@@ -1908,8 +1998,33 @@ static void CreateFlyDestIcons(void)
     u16 shape;
     u8 spriteId;
 
-    canFlyFlag = FLAG_VISITED_LITTLEROOT_TOWN;
-    for (mapSecId = MAPSEC_LITTLEROOT_TOWN; mapSecId <= MAPSEC_EVER_GRANDE_CITY; mapSecId++)
+    switch (gMapHeader.region)
+    {
+        case REGION_HOENN:
+            canFlyFlag = FLAG_VISITED_LITTLEROOT_TOWN;
+            mapSecStart = MAPSEC_LITTLEROOT_TOWN;
+            mapSecEnd = MAPSEC_EVER_GRANDE_CITY;
+            break;
+        case REGION_SEVII123:
+            canFlyFlag = FLAG_VISITED_ONE_ISLAND;
+            mapSecStart = MAPSEC_ONE_ISLAND;
+            mapSecEnd = MAPSEC_TWO_ISLAND;
+            break;
+        case REGION_SEVII45:
+            canFlyFlag = FLAG_VISITED_FOUR_ISLAND;
+            mapSecStart = MAPSEC_FOUR_ISLAND;
+            mapSecEnd = MAPSEC_FIVE_ISLAND;
+            break;
+        case REGION_SEVII67:
+            canFlyFlag = FLAG_VISITED_SEVEN_ISLAND;
+            mapSecStart = MAPSEC_SEVEN_ISLAND;
+            mapSecEnd = MAPSEC_SIX_ISLAND; // Comentario original.
+            break;
+        default: // Manejo seguro para valores inesperados.
+            return; // Salir de la función si la región no es válida.
+    }
+
+    for (mapSecId = mapSecStart; mapSecId <= mapSecEnd; mapSecId++)
     {
         GetMapSecDimensions(mapSecId, &x, &y, &width, &height);
         x = (x + MAPCURSOR_X_MIN) * 8 + 4;
