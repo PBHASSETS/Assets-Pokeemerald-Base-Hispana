@@ -1,25 +1,6 @@
 #ifndef GUARD_CONSTANTS_SOUND_H
 #define GUARD_CONSTANTS_SOUND_H
 
-#define FANFARE_LEVEL_UP             0
-#define FANFARE_OBTAIN_ITEM          1
-#define FANFARE_EVOLVED              2
-#define FANFARE_OBTAIN_TMHM          3
-#define FANFARE_HEAL                 4
-#define FANFARE_OBTAIN_BADGE         5
-#define FANFARE_MOVE_DELETED         6
-#define FANFARE_OBTAIN_BERRY         7
-#define FANFARE_AWAKEN_LEGEND        8
-#define FANFARE_SLOTS_JACKPOT        9
-#define FANFARE_SLOTS_WIN           10
-#define FANFARE_TOO_BAD             11
-#define FANFARE_RG_POKE_FLUTE       12
-#define FANFARE_RG_OBTAIN_KEY_ITEM  13
-#define FANFARE_RG_DEX_RATING       14
-#define FANFARE_OBTAIN_B_POINTS     15
-#define FANFARE_OBTAIN_SYMBOL       16
-#define FANFARE_REGISTER_MATCH_CALL 17
-
 #define CRY_MODE_NORMAL        0 // Default
 #define CRY_MODE_DOUBLES       1 // Shortened cry for double battles
 #define CRY_MODE_ENCOUNTER     2 // Used when starting a static encounter, or when a Pokémon is "aggressive"
