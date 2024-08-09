@@ -276,6 +276,7 @@
 #define SE_PIKE_CURTAIN_CLOSE         267 // SE_CURTAIN
 #define SE_PIKE_CURTAIN_OPEN          268 // SE_CURTAIN1
 #define SE_SUDOWOODO_SHAKE            269 // SE_USSOKI
+#define END_SE                      SE_SUDOWOODO_SHAKE
 // Bard SFX
 #define PH_TRAP_BLEND                 270
 #define PH_TRAP_HELD                  271
@@ -330,6 +331,7 @@
 #define PH_NURSE_SOLO                 320
 
 // Ruby & Sapphire Music 
+#define START_MUS                     321
 #define MUS_LITTLEROOT_TEST           321 // MUS_TETSUJI
 #define MUS_GSC_ROUTE38               322 // MUS_FIELD13
 #define MUS_CAUGHT                    323 // MUS_KACHI22
@@ -524,6 +526,7 @@
 #define MUS_RG_TRAINER_TOWER          500 // MUS_RG_T_TOWER
 #define MUS_RG_SLOW_PALLET            511 // MUS_RG_SLOWMASARA
 #define MUS_RG_TEACHY_TV_MENU         512 // MUS_RG_TVNOIZE
+#define END_MUS                     MUS_RG_TEACHY_TV_MENU
 
 // Emerald Music
 #define MUS_ABNORMAL_WEATHER          513 // MUS_OOAME
