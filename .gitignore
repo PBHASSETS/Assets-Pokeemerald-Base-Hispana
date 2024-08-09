@@ -35,6 +35,7 @@ prefabs.json
 *.a
 .fuse_hidden*
 *.sna
+log.txt
 *.diff
 *.sym
 *.js
