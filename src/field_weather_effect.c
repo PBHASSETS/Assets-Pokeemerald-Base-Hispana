@@ -13,6 +13,8 @@
 #include "task.h"
 #include "trig.h"
 #include "gpu_regs.h"
+#include "constants/rgb.h"
+#include "palette.h"
 
 EWRAM_DATA static u8 sCurrentAbnormalWeather = 0;
 
@@ -1372,10 +1374,14 @@ void FogHorizontal_Main(void)
     case 0:
         CreateFogHorizontalSprites();
         if (gWeatherPtr->currWeather == WEATHER_FOG_HORIZONTAL)
+        {
             Weather_SetTargetBlendCoeffs(12, 8, 3);
+        }
         else
+        {
             Weather_SetTargetBlendCoeffs(4, 16, 0);
-        gWeatherPtr->initStep++;
+        }
+        gWeatherPtr->initStep++;        
         break;
     case 1:
         if (Weather_UpdateBlend())

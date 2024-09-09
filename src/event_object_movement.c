@@ -1592,7 +1592,7 @@ static u8 TrySetupObjectEventSprite(const struct ObjectEventTemplate *objectEven
     graphicsInfo = GetObjectEventGraphicsInfo(objectEvent->graphicsId);
     if (spriteTemplate->paletteTag != TAG_NONE && spriteTemplate->paletteTag != OBJ_EVENT_PAL_TAG_DYNAMIC)
         LoadObjectEventPalette(spriteTemplate->paletteTag);
-
+    
     if (objectEvent->movementType == MOVEMENT_TYPE_INVISIBLE)
         objectEvent->invisible = TRUE;
 
@@ -1632,6 +1632,7 @@ static u8 TrySetupObjectEventSprite(const struct ObjectEventTemplate *objectEven
 
     SetObjectSubpriorityByElevation(objectEvent->previousElevation, sprite, 1);
     UpdateObjectEventVisibility(objectEvent, sprite);
+    UpdateSpritePaletteWithWeather(IndexOfSpritePaletteTag(graphicsInfo->paletteTag));
     return objectEventId;
 }
 
@@ -2930,6 +2931,21 @@ static u8 FindObjectEventPaletteIndexByTag(u16 tag)
             return i;
     }
     return 0xFF;
+}
+
+bool8 IsObjectEventPaletteIndex(u8 paletteIndex)
+{
+    #if DYNAMIC_OW_PALS
+        if (FindObjectEventPaletteIndexByTag(GetSpritePaletteTagByPaletteNum(paletteIndex - 16)) != 0xFF)
+            return TRUE;
+    #else
+        if ((paletteIndex - 16) > 10)
+            return FALSE;   //don't mess with the weather pal itself
+        else if (FindObjectEventPaletteIndexByTag(GetSpritePaletteTagByPaletteNum(paletteIndex)) != 0xFF)
+            return TRUE;
+    #endif
+    
+    return FALSE;
 }
 
 void LoadPlayerObjectReflectionPalette(u16 tag, u8 slot)

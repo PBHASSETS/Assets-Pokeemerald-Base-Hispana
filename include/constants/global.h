@@ -176,4 +176,6 @@
 #include "config/test.h"
 #endif
 
+#define DYNAMIC_OW_PALS         FALSE
+
 #endif // GUARD_CONSTANTS_GLOBAL_H
