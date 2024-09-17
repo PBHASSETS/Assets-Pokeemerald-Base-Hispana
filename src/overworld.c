@@ -74,6 +74,28 @@
 #include "constants/songs.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#include "global.h"
+#include "constants/songs.h"
+#include "constants/weather.h"
+#include "constants/rgb.h"
+#include "util.h"
+#include "decompress.h"
+#include "event_object_movement.h"
+#include "field_weather.h"
+#include "fieldmap.h"
+#include "main.h"
+#include "menu.h"
+#include "palette.h"
+#include "random.h"
+#include "script.h"
+#include "start_menu.h"
+#include "sound.h"
+#include "sprite.h"
+#include "task.h"
+#include "trig.h"
+#include "gpu_regs.h"
+#include "field_camera.h"
+#include "overworld.h"
 
 struct CableClubPlayer
 {
@@ -1533,9 +1555,9 @@ const struct BlendSettings gTimeOfDayBlend[] =
     [TIME_NIGHT]   = {.coeff = 10, .blendColor = TINT_NIGHT, .isTint = TRUE},
 };
 
-void UpdateTimeOfDay(void)
+int UpdateTimeOfDay(void)
 {
-    s32 hours, minutes;
+        s32 hours, minutes;
     RtcCalcLocalTime();
     hours = gLocalTime.hours;
     minutes = gLocalTime.minutes;

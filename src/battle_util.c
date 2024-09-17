@@ -11808,7 +11808,7 @@ static inline bool32 DoesBattlerHaveAbilityImmunity(u32 battlerDef)
 
 bool32 TargetFullyImmuneToCurrMove(u32 battlerAtk, u32 battlerDef)
 {
-    return ((CalcTypeEffectivenessMultiplier(gCurrentMove, GetMoveType(gCurrentMove), BattlerAtk, battlerDef, GetBattlerAbility(battlerDef), FALSE) == UQ_4_12(0.0))
+    return ((CalcTypeEffectivenessMultiplier(gCurrentMove, GetMoveType(gCurrentMove), battlerAtk, battlerDef, GetBattlerAbility(battlerDef), FALSE) == UQ_4_12(0.0))
          || IsBattlerProtected(battlerAtk, battlerDef, gCurrentMove)
          || IsSemiInvulnerable(battlerDef, gCurrentMove)
          || DoesBattlerHaveAbilityImmunity(battlerDef));
