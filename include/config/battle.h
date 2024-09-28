@@ -228,7 +228,7 @@
 #define B_EXPANDED_MOVE_NAMES       TRUE  // If set to FALSE, move names are decreased from 16 characters to 12 characters.
 #define B_WAIT_TIME_MULTIPLIER      16    // This determines how long text pauses in battle last. Vanilla is 16. Lower values result in faster battles.
 #define B_QUICK_MOVE_CURSOR_TO_RUN  FALSE // If set to TRUE, pushing B in the battle options against a wild encounter will move the cursor to the run option
-#define B_MOVE_DESCRIPTION_BUTTON   L_BUTTON // If set to a button other than B_LAST_USED_BALL_BUTTON, pressing this button will open the move description menu
+#define B_MOVE_DESCRIPTION_BUTTON   FALSE // If set to a button other than B_LAST_USED_BALL_BUTTON, pressing this button will open the move description menu
 
 // Catching settings
 #define B_SEMI_INVULNERABLE_CATCH   GEN_LATEST // In Gen4+, you cannot throw a ball against a Pokemon that is in a semi-invulnerable state (dig/fly/etc)
@@ -276,5 +276,11 @@
 #define B_ENEMY_THROW_BALLS          GEN_LATEST  // In GEN_6+, enemy Trainers throw Poké Balls into battle instead of them just appearing on the ground and opening.
 #define B_ENEMY_THROW_BALLS_SOUND    GEN_LATEST  // In GEN_5+, enemy Trainer's Poké Balls make a sound when thrown to send out a Pokémon. This can only be used when B_ENEMY_THROW_BALLS is set to GEN_6 or later.
 #define B_PLAYER_THROW_BALLS_SOUND   GEN_LATEST  // In GEN_5+, the player's Poké Balls make a sound when thrown to send out a Pokémon.
+
+// Battle Move Info
+#define B_BATTLE_MOVE_INFO             TRUE       // If set to TRUE, adds a battle info menu while pressing L in the move selection menu.
+#define B_BATTLE_MOVE_INFO_BUTTON      L_BUTTON   // Interchangeable with L_BUTTON or R_BUTTON only since all other buttons are used in the move selection menu.
+#define B_UPDATED_BATTLE_MOVE_INFO     FALSE      // If set to TRUE, battle move info will show the real base power and accuracy of moves after ability, stat and item modifier.
+#define B_PSS_SPLIT_ICONS              TRUE       // If set to TRUE, adds Physical/Special/Status split icons to the PP window of the move selection menu.
 
 #endif // GUARD_CONFIG_BATTLE_H
