@@ -239,6 +239,9 @@ extern const u32 gBerryFixWindow_Gfx[];
 extern const u32 gBerryFixWindow_Tilemap[];
 extern const u16 gBerryFixWindow_Pal[];
 
+extern const u8 gActionsMenu_Gfx[];
+extern const u16 gActionsMenu_Pal[];
+
 extern const u32 gBattleTextboxTiles[];
 extern const u32 gBattleTextboxTilemap[];
 extern const u32 gBattleTextboxPalette[];
@@ -1607,6 +1610,8 @@ extern const u32 gItemIcon_FameChecker[];
 extern const u32 gItemIconPalette_FameChecker[];
 extern const u32 gItemIcon_TeachyTV[];
 extern const u32 gItemIconPalette_TeachyTV[];
+extern const u32 gItemIcon_EonFlute[];
+extern const u32 gItemIconPalette_EonFlute[];
 // Story Key Items
 extern const u32 gItemIcon_SSTicket[];
 extern const u32 gItemIconPalette_SSTicket[];
@@ -3142,6 +3147,7 @@ extern const u32 gBattleAnimBgPalette_Surf[];
 extern const u32 gBattleAnimBackgroundImageMuddyWater_Pal[];
 
 extern const u32 gEnemyMonShadow_Gfx[];
+extern const u32 gEnemyMonShadowsSized_Gfx[];
 
 extern const u32 gBattleAnimFogTilemap[];
 
@@ -3217,6 +3223,11 @@ extern const u32 gBattleAnimBgImage_Sandstorm[];
 extern const u32 gBattleAnimBgImage_Rainbow[];
 extern const u32 gBattleAnimBGPalette_Rainbow[];
 extern const u32 gBattleAnimBgTilemap_Rainbow[];
+
+// Pledge Effect field status - Swamp
+extern const u32 gBattleAnimBgImage_Swamp[];
+extern const u32 gBattleAnimBGPalette_Swamp[];
+extern const u32 gBattleAnimBgTilemap_Swamp[];
 
 // Pokédex Area Screen
 extern const u32 gPokedexAreaScreenAreaUnknown_Gfx[];
@@ -3407,6 +3418,11 @@ extern const u8 gMailTilemap_Retro[];
 
 extern const u8 gMonMarkingsMenu_Gfx[];
 extern const u16 gMonMarkingsMenu_Pal[];
+
+extern const u32 gBattleIcons_Gfx1[];
+extern const u32 gBattleIcons_Gfx2[];
+extern const u32 gBattleIcons_Pal1[];
+extern const u32 gBattleIcons_Pal2[];
 
 //Tutoriales
     //Iconos de tipos

@@ -291,10 +291,18 @@ void CB2_SetUpReshowBattleScreenAfterMenu(void);
 void CB2_SetUpReshowBattleScreenAfterMenu2(void);
 void Task_PlayerController_RestoreBgmAfterCry(u8 taskId);
 void ActionSelectionCreateCursorAt(u8 cursorPos, u8 unused);
+void ActionSelectionCreateCursorAt_Gfx(u8 cursorPos, u8 unused);
 void ActionSelectionDestroyCursorAt(u8 cursorPos);
 void InitMoveSelectionsVarsAndStrings(u32 battler);
 void MoveSelectionCreateCursorAt(u8 cursorPos, u8 arg1);
 void MoveSelectionDestroyCursorAt(u8 cursorPosition);
+void PlayerHandleChooseMove(u32 battler);
+void HandleInputChooseMove(u32 battler);
+void HandleInputChooseTarget(u32 battler);
+void HandleInputShowEntireFieldTargets(u32 battler);
+void HandleInputShowTargets(u32 battler);
+void HandleMoveSwitching(u32 battler);
+void HandleChooseMoveAfterDma3(u32 battler);
 
 // recorded player controller
 void SetControllerToRecordedPlayer(u32 battler);

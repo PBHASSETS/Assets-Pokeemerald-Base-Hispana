@@ -9,9 +9,11 @@
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "event_scripts.h"
+#include "fake_rtc.h"
 #include "field_camera.h"
 #include "field_control_avatar.h"
 #include "field_effect.h"
+#include "field_effect_helpers.h"
 #include "field_message_box.h"
 #include "field_player_avatar.h"
 #include "field_screen_effect.h"
@@ -24,6 +26,8 @@
 #include "gpu_regs.h"
 #include "heal_location.h"
 #include "io_reg.h"
+#include "item.h"
+#include "item_icon.h"
 #include "link.h"
 #include "link_rfu.h"
 #include "load_save.h"
@@ -51,6 +55,7 @@
 #include "secret_base.h"
 #include "sound.h"
 #include "start_menu.h"
+#include "string_util.h"
 #include "task.h"
 #include "tileset_anims.h"
 #include "time_events.h"
@@ -62,12 +67,35 @@
 #include "vs_seeker.h"
 #include "frontier_util.h"
 #include "constants/abilities.h"
+#include "constants/event_objects.h"
 #include "constants/layouts.h"
 #include "constants/map_types.h"
 #include "constants/region_map_sections.h"
 #include "constants/songs.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#include "global.h"
+#include "constants/songs.h"
+#include "constants/weather.h"
+#include "constants/rgb.h"
+#include "util.h"
+#include "decompress.h"
+#include "event_object_movement.h"
+#include "field_weather.h"
+#include "fieldmap.h"
+#include "main.h"
+#include "menu.h"
+#include "palette.h"
+#include "random.h"
+#include "script.h"
+#include "start_menu.h"
+#include "sound.h"
+#include "sprite.h"
+#include "task.h"
+#include "trig.h"
+#include "gpu_regs.h"
+#include "field_camera.h"
+#include "overworld.h"
 
 struct CableClubPlayer
 {
@@ -191,6 +219,11 @@ bool8 (*gFieldCallback2)(void);
 u8 gLocalLinkPlayerId; // This is our player id in a multiplayer mode.
 u8 gFieldLinkPlayerCount;
 
+u8 gTimeOfDay;
+struct TimeBlendSettings currentTimeBlend;
+u16 gTimeUpdateCounter; // playTimeVBlanks will eventually overflow, so this is used to update TOD
+
+// EWRAM vars
 EWRAM_DATA static u8 sObjectEventLoadFlag = 0;
 EWRAM_DATA struct WarpData gLastUsedWarp = {0};
 EWRAM_DATA static struct WarpData sWarpDestination = {0};  // new warp position
@@ -684,9 +717,19 @@ void SetWarpDestinationToHealLocation(u8 healLocationId)
         SetWarpDestination(healLocation->group, healLocation->map, WARP_ID_NONE, healLocation->x, healLocation->y);
 }
 
+static bool32 IsFRLGWhiteout(void)
+{
+    if (!OW_FRLG_WHITEOUT)
+        return FALSE;
+    return GetHealNpcLocalId(GetHealLocationIndexByWarpData(&gSaveBlock1Ptr->lastHealLocation)) > 0;
+}
+
 void SetWarpDestinationToLastHealLocation(void)
 {
-    sWarpDestination = gSaveBlock1Ptr->lastHealLocation;
+    if (IsFRLGWhiteout())
+        SetWhiteoutRespawnWarpAndHealerNPC(&sWarpDestination);
+    else
+        sWarpDestination = gSaveBlock1Ptr->lastHealLocation;
 }
 
 void SetLastHealLocationWarp(u8 healLocationId)
@@ -805,8 +848,6 @@ bool8 SetDiveWarpDive(u16 x, u16 y)
 
 void LoadMapFromCameraTransition(u8 mapGroup, u8 mapNum)
 {
-    s32 paletteIndex;
-
     SetWarpDestination(mapGroup, mapNum, WARP_ID_NONE, -1, -1);
 
     // Dont transition map music between BF Outside West/East
@@ -835,10 +876,9 @@ if (I_VS_SEEKER_CHARGING != 0)
     RunOnTransitionMapScript();
     InitMap();
     CopySecondaryTilesetToVramUsingHeap(gMapHeader.mapLayout);
-    LoadSecondaryTilesetPalette(gMapHeader.mapLayout);
+    LoadSecondaryTilesetPalette(gMapHeader.mapLayout, TRUE); // skip copying to Faded, gamma shift will take care of it
 
-    for (paletteIndex = NUM_PALS_IN_PRIMARY; paletteIndex < NUM_PALS_TOTAL; paletteIndex++)
-        ApplyWeatherColorMapToPal(paletteIndex);
+    ApplyWeatherColorMapToPals(NUM_PALS_IN_PRIMARY, NUM_PALS_TOTAL - NUM_PALS_IN_PRIMARY); // palettes [6,12]
 
     InitSecondaryTilesetAnimation();
     UpdateLocationHistoryForRoamer();
@@ -1505,6 +1545,154 @@ void CB1_Overworld(void)
         DoCB1_Overworld(gMain.newKeys, gMain.heldKeys);
 }
 
+#define TINT_NIGHT Q_8_8(0.456) | Q_8_8(0.456) << 8 | Q_8_8(0.615) << 16
+
+const struct BlendSettings gTimeOfDayBlend[] =
+{
+    [TIME_MORNING] = {.coeff = 4,  .blendColor = 0xA8B0E0,   .isTint = TRUE}, // Originally TIME_OF_DAY_TWILIGHT
+    [TIME_DAY]     = {.coeff = 0,  .blendColor = 0,          .isTint = FALSE},
+    [TIME_EVENING] = {.coeff = 4,  .blendColor = 0xA8B0E0,   .isTint = TRUE}, // Originally TIME_OF_DAY_TWILIGHT
+    [TIME_NIGHT]   = {.coeff = 10, .blendColor = TINT_NIGHT, .isTint = TRUE},
+};
+
+int UpdateTimeOfDay(void)
+{
+        s32 hours, minutes;
+    RtcCalcLocalTime();
+    hours = gLocalTime.hours;
+    minutes = gLocalTime.minutes;
+    if (hours < 4) // night
+    {
+        currentTimeBlend.weight = 256;
+        currentTimeBlend.altWeight = 0;
+        gTimeOfDay = currentTimeBlend.time0 = currentTimeBlend.time1 = TIME_NIGHT;
+    }
+    else if (hours < 7) // night->morning
+    {
+        currentTimeBlend.time0 = TIME_NIGHT;
+        currentTimeBlend.time1 = TIME_MORNING;
+        currentTimeBlend.weight = 256 - 256 * ((hours - 4) * 60 + minutes) / ((7-4)*60);
+        currentTimeBlend.altWeight = (256 - currentTimeBlend.weight) / 2;
+        gTimeOfDay = TIME_MORNING;
+    }
+    else if (hours < 10) // morning->day
+    {
+        currentTimeBlend.time0 = TIME_MORNING;
+        currentTimeBlend.time1 = TIME_DAY;
+        currentTimeBlend.weight = 256 - 256 * ((hours - 7) * 60 + minutes) / ((10-7)*60);
+        currentTimeBlend.altWeight = (256 - currentTimeBlend.weight) / 2 + 128;
+        gTimeOfDay = TIME_DAY;
+    }
+    else if (hours < 18) // day
+    {
+        currentTimeBlend.weight = currentTimeBlend.altWeight = 256;
+        gTimeOfDay = currentTimeBlend.time0 = currentTimeBlend.time1 = TIME_DAY;
+    }
+    else if (hours < 20) // evening
+    {
+        currentTimeBlend.time0 = TIME_DAY;
+        currentTimeBlend.time1 = TIME_EVENING;
+        currentTimeBlend.weight = 256 - 256 * ((hours - 18) * 60 + minutes) / ((20-18)*60);
+        currentTimeBlend.altWeight = currentTimeBlend.weight / 2 + 128;
+        gTimeOfDay = TIME_EVENING;
+    }
+    else if (hours < 22) // evening->night
+    {
+        currentTimeBlend.time0 = TIME_EVENING;
+        currentTimeBlend.time1 = TIME_NIGHT;
+        currentTimeBlend.weight = 256 - 256 * ((hours - 20) * 60 + minutes) / ((22-20)*60);
+        currentTimeBlend.altWeight = currentTimeBlend.weight / 2;
+        gTimeOfDay = TIME_NIGHT;
+    }
+    else // 22-24, night
+    {
+        currentTimeBlend.weight = 256;
+        currentTimeBlend.altWeight = 0;
+        gTimeOfDay = currentTimeBlend.time0 = currentTimeBlend.time1 = TIME_NIGHT;
+    }
+    return gTimeOfDay;
+}
+
+// Whether a map type is naturally lit/outside
+bool8 MapHasNaturalLight(u8 mapType)
+{
+    return (mapType == MAP_TYPE_TOWN
+         || mapType == MAP_TYPE_CITY
+         || mapType == MAP_TYPE_ROUTE
+         || mapType == MAP_TYPE_OCEAN_ROUTE
+    );
+}
+
+// Update & mix day / night bg palettes (into unfaded)
+void UpdateAltBgPalettes(u16 palettes)
+{
+    const struct Tileset *primary = gMapHeader.mapLayout->primaryTileset;
+    const struct Tileset *secondary = gMapHeader.mapLayout->secondaryTileset;
+    u32 i = 1;
+    if (!MapHasNaturalLight(gMapHeader.mapType))
+        return;
+    palettes &= ~((1 << NUM_PALS_IN_PRIMARY) - 1) | primary->swapPalettes;
+    palettes &= ((1 << NUM_PALS_IN_PRIMARY) - 1) | (secondary->swapPalettes << NUM_PALS_IN_PRIMARY);
+    palettes &= PALETTES_MAP ^ (1 << 0); // don't blend palette 0, [13,15]
+    palettes >>= 1; // start at palette 1
+    if (!palettes)
+        return;
+    while (palettes)
+    {
+        if (palettes & 1)
+        {
+            if (i < NUM_PALS_IN_PRIMARY)
+                AvgPaletteWeighted(&((u16*)primary->palettes)[i*16], &((u16*)primary->palettes)[((i+9)%16)*16], gPlttBufferUnfaded + i * 16, currentTimeBlend.altWeight);
+            else
+                AvgPaletteWeighted(&((u16*)secondary->palettes)[i*16], &((u16*)secondary->palettes)[((i+9)%16)*16], gPlttBufferUnfaded + i * 16, currentTimeBlend.altWeight);
+        }
+        i++;
+        palettes >>= 1;
+    }
+}
+
+void UpdatePalettesWithTime(u32 palettes)
+{
+    if (MapHasNaturalLight(gMapHeader.mapType))
+    {
+        u32 i;
+        u32 mask = 1 << 16;
+        if (palettes >= (1 << 16))
+        for (i = 0; i < 16; i++, mask <<= 1)
+            if (IS_BLEND_IMMUNE_TAG(GetSpritePaletteTagByPaletteNum(i)))
+                palettes &= ~(mask);
+
+    palettes &= PALETTES_MAP | PALETTES_OBJECTS; // Don't blend UI pals
+    if (!palettes)
+        return;
+    TimeMixPalettes(
+        palettes,
+        gPlttBufferUnfaded,
+        gPlttBufferFaded,
+        (struct BlendSettings *)&gTimeOfDayBlend[currentTimeBlend.time0],
+        (struct BlendSettings *)&gTimeOfDayBlend[currentTimeBlend.time1],
+        currentTimeBlend.weight
+    );
+    }
+}
+
+u8 UpdateSpritePaletteWithTime(u8 paletteNum)
+{
+    if (MapHasNaturalLight(gMapHeader.mapType))
+    {
+        if (IS_BLEND_IMMUNE_TAG(GetSpritePaletteTagByPaletteNum(paletteNum)))
+            return paletteNum;
+        TimeMixPalettes(1,
+                        &gPlttBufferUnfaded[OBJ_PLTT_ID(paletteNum)],
+                        &gPlttBufferFaded[OBJ_PLTT_ID(paletteNum)],
+                        (struct BlendSettings *)&gTimeOfDayBlend[currentTimeBlend.time0],
+                        (struct BlendSettings *)&gTimeOfDayBlend[currentTimeBlend.time1],
+                        currentTimeBlend.weight
+        );
+    }
+    return paletteNum;
+}
+
 static void OverworldBasic(void)
 {
     ScriptContext_RunScript();
@@ -1516,6 +1704,25 @@ static void OverworldBasic(void)
     UpdatePaletteFade();
     UpdateTilesetAnimations();
     DoScheduledBgTilemapCopiesToVram();
+    // Every minute if no palette fade is active, update TOD blending as needed
+    if (!gPaletteFade.active && ++gTimeUpdateCounter >= (SECONDS_PER_MINUTE * 60 / FakeRtc_GetSecondsRatio()))
+    {
+        struct TimeBlendSettings cachedBlend = {
+            .time0 = currentTimeBlend.time0,
+            .time1 = currentTimeBlend.time1,
+            .weight = currentTimeBlend.weight,
+        };
+        gTimeUpdateCounter = 0;
+        UpdateTimeOfDay();
+        FormChangeTimeUpdate();
+        if (cachedBlend.time0 != currentTimeBlend.time0
+            || cachedBlend.time1 != currentTimeBlend.time1
+            || cachedBlend.weight != currentTimeBlend.weight)
+        {
+           UpdateAltBgPalettes(PALETTES_BG);
+           UpdatePalettesWithTime(PALETTES_ALL);
+        }
+    }
 }
 
 // This CB2 is used when starting
@@ -1606,7 +1813,10 @@ void CB2_WhiteOut(void)
         ResetInitialPlayerAvatarState();
         ScriptContext_Init();
         UnlockPlayerFieldControls();
-        gFieldCallback = FieldCB_WarpExitFadeFromBlack;
+        if (IsFRLGWhiteout())
+            gFieldCallback = FieldCB_RushInjuredPokemonToCenter;
+        else
+            gFieldCallback = FieldCB_WarpExitFadeFromBlack;
         state = 0;
         DoMapLoadLoop(&state);
         SetFieldVBlankCallback();
@@ -3248,6 +3458,8 @@ static void CreateLinkPlayerSprite(u8 linkPlayerId, u8 gameVersion)
         sprite->coordOffsetEnabled = TRUE;
         sprite->data[0] = linkPlayerId;
         objEvent->triggerGroundEffectsOnMove = FALSE;
+        objEvent->localId = OBJ_EVENT_ID_DYNAMIC_BASE + linkPlayerId;
+        SetUpShadow(objEvent, sprite);
     }
 }
 
@@ -3272,3 +3484,207 @@ static void SpriteCB_LinkPlayer(struct Sprite *sprite)
         sprite->data[7]++;
     }
 }
+
+// ----------------
+// Item Header Descriptions
+// Item Description Header
+
+#define ITEM_ICON_X     26
+#define ITEM_ICON_Y     24
+#define ITEM_TAG        0x2722 //same as money label
+
+bool8 GetSetItemObtained(u16 item, enum ItemObtainFlags caseId)
+{    
+#if OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_FIRST_TIME
+    u8 index = item / 8;
+    u8 bit = item % 8;
+    u8 mask = 1 << bit;
+    switch (caseId)
+    {
+    case FLAG_GET_ITEM_OBTAINED:
+        return gSaveBlock3Ptr->itemFlags[index] & mask;
+    case FLAG_SET_ITEM_OBTAINED:
+        gSaveBlock3Ptr->itemFlags[index] |= mask;
+        return TRUE;
+    }
+#endif
+    return FALSE;
+}
+
+#if OW_SHOW_ITEM_DESCRIPTIONS != OW_ITEM_DESCRIPTIONS_OFF
+
+EWRAM_DATA static u8 sHeaderBoxWindowId = 0;
+EWRAM_DATA u8 sItemIconSpriteId = 0;
+EWRAM_DATA u8 sItemIconSpriteId2 = 0;
+
+static void ShowItemIconSprite(u16 item, bool8 firstTime, bool8 flash);
+static void DestroyItemIconSprite(void);
+
+static u8 ReformatItemDescription(u16 item, u8 *dest)
+{
+    u8 count = 0;
+    u8 numLines = 1;
+    u8 maxChars = 32;
+    u8 *desc = (u8 *)gItemsInfo[item].description;
+
+    while (*desc != EOS)
+    {
+        if (count >= maxChars)
+        {
+            while (*desc != CHAR_SPACE && *desc != CHAR_NEWLINE)
+            {
+                *dest = *desc;  //finish word
+                dest++;
+                desc++;
+            }
+
+            *dest = CHAR_NEWLINE;
+            count = 0;
+            numLines++;
+            dest++;
+            desc++;
+            continue;
+        }
+
+        *dest = *desc;
+        if (*desc == CHAR_NEWLINE)
+        {
+            *dest = CHAR_SPACE;
+        }
+
+        dest++;
+        desc++;
+        count++;
+    }
+
+    // finish string
+    *dest = EOS;
+    return numLines;
+}
+
+void ScriptShowItemDescription(struct ScriptContext *ctx)
+{
+    u8 headerType = ScriptReadByte(ctx);
+    struct WindowTemplate template;
+    u16 item = gSpecialVar_0x8006;
+    u8 textY;
+    u8 *dst;
+    bool8 handleFlash = FALSE;
+
+    if (GetFlashLevel() > 0 || InBattlePyramid_())
+        handleFlash = TRUE;
+
+    if (headerType == 1) // berry
+        dst = gStringVar3;
+    else
+        dst = gStringVar1;
+
+    if (GetSetItemObtained(item, FLAG_GET_ITEM_OBTAINED))
+    {
+        ShowItemIconSprite(item, FALSE, handleFlash);
+        return; //no box if item obtained previously
+    }
+
+    SetWindowTemplateFields(&template, 0, 1, 1, 28, 3, 15, 8);
+    sHeaderBoxWindowId = AddWindow(&template);
+    FillWindowPixelBuffer(sHeaderBoxWindowId, PIXEL_FILL(0));
+    PutWindowTilemap(sHeaderBoxWindowId);
+    CopyWindowToVram(sHeaderBoxWindowId, 3);
+    SetStandardWindowBorderStyle(sHeaderBoxWindowId, FALSE);
+    DrawStdFrameWithCustomTileAndPalette(sHeaderBoxWindowId, FALSE, 0x214, 14);
+
+    if (ReformatItemDescription(item, dst) == 1)
+        textY = 4;
+    else
+        textY = 0;
+
+    ShowItemIconSprite(item, TRUE, handleFlash);
+    AddTextPrinterParameterized(sHeaderBoxWindowId, 0, dst, ITEM_ICON_X + 2, textY, 0, NULL);
+}
+
+void ScriptHideItemDescription(struct ScriptContext *ctx)
+{
+    DestroyItemIconSprite();
+
+    if (!GetSetItemObtained(gSpecialVar_0x8006, FLAG_GET_ITEM_OBTAINED))
+    {
+        //header box only exists if haven't seen item before
+        GetSetItemObtained(gSpecialVar_0x8006, FLAG_SET_ITEM_OBTAINED);
+        ClearStdWindowAndFrameToTransparent(sHeaderBoxWindowId, FALSE);
+        CopyWindowToVram(sHeaderBoxWindowId, 3);
+        RemoveWindow(sHeaderBoxWindowId);
+    }
+}
+
+static void ShowItemIconSprite(u16 item, bool8 firstTime, bool8 flash)
+{
+    s16 x = 0, y = 0;
+    u8 iconSpriteId;   
+    u8 spriteId2 = MAX_SPRITES;
+
+    if (flash)
+    {
+        SetGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJWIN_ON);
+        SetGpuRegBits(REG_OFFSET_WINOUT, WINOUT_WINOBJ_OBJ);
+    }
+
+    iconSpriteId = AddItemIconSprite(ITEM_TAG, ITEM_TAG, item);
+    if (flash)
+        spriteId2 = AddItemIconSprite(ITEM_TAG, ITEM_TAG, item);
+    if (iconSpriteId != MAX_SPRITES)
+    {
+        if (!firstTime)
+        {
+            //show in message box
+            x = 213;
+            y = 140;
+        }
+        else
+        {
+            // show in header box
+            x = ITEM_ICON_X;
+            y = ITEM_ICON_Y;
+        }
+
+        gSprites[iconSpriteId].x2 = x;
+        gSprites[iconSpriteId].y2 = y;
+        gSprites[iconSpriteId].oam.priority = 0;
+    }
+
+    if (spriteId2 != MAX_SPRITES)
+    {
+        gSprites[spriteId2].x2 = x;
+        gSprites[spriteId2].y2 = y;
+        gSprites[spriteId2].oam.priority = 0;
+        gSprites[spriteId2].oam.objMode = ST_OAM_OBJ_WINDOW;
+        sItemIconSpriteId2 = spriteId2;
+    }
+
+    sItemIconSpriteId = iconSpriteId;
+}
+
+static void DestroyItemIconSprite(void)
+{
+    FreeSpriteTilesByTag(ITEM_TAG);
+    FreeSpritePaletteByTag(ITEM_TAG);
+    FreeSpriteOamMatrix(&gSprites[sItemIconSpriteId]);
+    DestroySprite(&gSprites[sItemIconSpriteId]);
+
+    if ((GetFlashLevel() > 0 || InBattlePyramid_()) && sItemIconSpriteId2 != MAX_SPRITES)
+    {
+        FreeSpriteOamMatrix(&gSprites[sItemIconSpriteId2]);
+        DestroySprite(&gSprites[sItemIconSpriteId2]);
+    }
+}
+
+#else
+void ScriptShowItemDescription(struct ScriptContext *ctx)
+{
+    (void) ScriptReadByte(ctx);
+}
+void ScriptHideItemDescription(struct ScriptContext *ctx)
+{
+}
+#endif // OW_SHOW_ITEM_DESCRIPTIONS
+
+

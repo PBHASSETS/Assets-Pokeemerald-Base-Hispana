@@ -361,6 +361,7 @@ SECTIONS {
         src/pokemon_sprite_visualizer.o(.text);
         src/expansion_intro.o(.text);
         src/tutoriales/minijuego_zubat.o(.text);
+        src/soar.o(.text);
     } > ROM =0
 
     script_data :
@@ -725,6 +726,7 @@ SECTIONS {
         src/international_string_util.o(.rodata);
         src/mystery_event_msg.o(.rodata);
         data/mystery_gift.o(.rodata);
+        src/soar.o(.rodata);
         src/m4a_tables.o(.rodata);
         data/sound_data.o(.rodata);
         src/pokemon_sprite_visualizer.o(.rodata);

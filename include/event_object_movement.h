@@ -7,6 +7,28 @@
 #error "OW_POKEMON_OBJECT_EVENTS needs to be TRUE in order for OW_FOLLOWERS_ENABLED to work."
 #endif
 
+// Palette slots for overworld NPCs.
+// The same standard set of palettes for overworld objects are normally always loaded at the same
+// time while walking around the overworld. The only exceptions are the palettes for the player and
+// the "special" NPC, which can be swapped out. This also means that e.g. two "special" NPCs
+// with competing palettes cannot be properly loaded at the same time.
+enum {
+    PALSLOT_PLAYER,
+    PALSLOT_PLAYER_REFLECTION,
+    PALSLOT_NPC_1,
+    PALSLOT_NPC_2,
+    PALSLOT_NPC_3,
+    PALSLOT_NPC_4,
+    PALSLOT_NPC_1_REFLECTION,
+    PALSLOT_NPC_2_REFLECTION,
+    PALSLOT_NPC_3_REFLECTION,
+    PALSLOT_NPC_4_REFLECTION,
+    PALSLOT_NPC_SPECIAL,
+    PALSLOT_NPC_SPECIAL_REFLECTION,
+    OBJ_PALSLOT_COUNT
+    // the remaining sprite palette slots (12-15) are used by field effects, the interface, etc.
+};
+
 enum SpinnerRunnerFollowPatterns
 {
     RUNFOLLOW_ANY,
@@ -118,13 +140,17 @@ struct Pokemon *GetFirstLiveMon(void);
 void UpdateFollowingPokemon(void);
 void RemoveFollowingPokemon(void);
 struct ObjectEvent *GetFollowerObject(void);
+u8 GetDirectionToFace(s16, s16, s16, s16);
+void UpdateLightSprite(struct Sprite *);
 void TrySpawnObjectEvents(s16 cameraX, s16 cameraY);
+u8 CreateObjectGraphicsSpriteWithTag(u16 graphicsId, void (*callback)(struct Sprite *), s16 x, s16 y, u8 subpriority, u16 paletteTag);
 u8 CreateObjectGraphicsSprite(u16, void (*)(struct Sprite *), s16 x, s16 y, u8 subpriority);
 u8 TrySpawnObjectEvent(u8 localId, u8 mapNum, u8 mapGroup);
 u8 SpawnSpecialObjectEventParameterized(u16 graphicsId, u8 movementBehavior, u8 localId, s16 x, s16 y, u8 elevation);
 u8 SpawnSpecialObjectEvent(struct ObjectEventTemplate *);
 void SetSpritePosToMapCoords(s16 mapX, s16 mapY, s16 *destX, s16 *destY);
 void CameraObjectReset(void);
+u8 LoadObjectEventPalette(u16);
 u8 UpdateSpritePaletteByTemplate(const struct SpriteTemplate *, struct Sprite *);
 void ObjectEventSetGraphicsId(struct ObjectEvent *, u16 graphicsId);
 void ObjectEventTurn(struct ObjectEvent *, u8 direction);
