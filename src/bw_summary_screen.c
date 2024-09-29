@@ -50,6 +50,7 @@
 #include "constants/region_map_sections.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
+#include "config/pbh.h"
 
 #if BW_SUMMARY_SCREEN == TRUE
 enum BWPSSPage
@@ -326,8 +327,8 @@ static void SetMoveTypeIcons(void);
 static void SetContestMoveTypeIcons(void);
 static void SetNewMoveTypeIcon(void);
 static void SwapMovesTypeSprites(u8, u8);
-static u8 LoadMonGfxAndSprite(struct Pokemon *, s16 *);
-static u8 CreateMonSprite(struct Pokemon *);
+static u8 LoadMonGfxAndSprite(s16 *);
+static u8 CreateMonSprite(void);
 static void SpriteCB_Pokemon(struct Sprite *);
 static void StopPokemonAnimations(void);
 static void CreateMonMarkingsSprite(struct Pokemon *);
@@ -1790,7 +1791,7 @@ static bool8 LoadGraphics(void)
         gMain.state++;
         break;
     case 16:
-        sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] = LoadMonGfxAndSprite(&sMonSummaryScreen->currentMon, &sMonSummaryScreen->switchCounter);
+        sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] = LoadMonGfxAndSprite(&sMonSummaryScreen->switchCounter);
         if (sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] != SPRITE_NONE)
         {
             sMonSummaryScreen->switchCounter = 0;
@@ -2402,7 +2403,7 @@ static void Task_ChangeSummaryMon(u8 taskId)
         data[1] = 0;
         break;
     case 8:
-        sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] = LoadMonGfxAndSprite(&sMonSummaryScreen->currentMon, &data[1]);
+        sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] = LoadMonGfxAndSprite(&data[1]);
         if (sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON] == SPRITE_NONE)
             return;
         gSprites[sMonSummaryScreen->spriteIds[SPRITE_ARR_ID_MON]].data[2] = 1;
@@ -4893,29 +4894,21 @@ static void SetTypeSpritePosAndPal(u8 typeId, u8 x, u8 y, u8 spriteArrayId)
 static void SetMonTypeIcons(void)
 {
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
-    if (summary->isEgg)
+    SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[0], 68, 46, SPRITE_ARR_ID_TYPE);
+    if (gSpeciesInfo[summary->species].types[0] != gSpeciesInfo[summary->species].types[1])
     {
-        SetTypeSpritePosAndPal(TYPE_MYSTERY, 68, 46, SPRITE_ARR_ID_TYPE);
-        SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, TRUE);
+        SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[1], 105, 46, SPRITE_ARR_ID_TYPE + 1);
+        SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, FALSE);
         if (P_SHOW_TERA_TYPE >= GEN_9)
             SetSpriteInvisibility(SPRITE_ARR_ID_TERA_TYPE, TRUE);
     }
     else
     {
-        SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[0], 68, 46, SPRITE_ARR_ID_TYPE);
-        if (gSpeciesInfo[summary->species].types[0] != gSpeciesInfo[summary->species].types[1])
-        {
-            SetTypeSpritePosAndPal(gSpeciesInfo[summary->species].types[1], 106, 46, SPRITE_ARR_ID_TYPE + 1);
-            SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, FALSE);
-        }
-        else
-        {
-            SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, TRUE);
-        }
-        if (P_SHOW_TERA_TYPE >= GEN_9)
-        {
-            SetTypeSpritePosAndPal(summary->teraType, 36, 47, SPRITE_ARR_ID_TERA_TYPE);
-        }
+        SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, TRUE);
+    }
+    if (P_SHOW_TERA_TYPE >= GEN_9)
+    {
+        SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
     }
 }
 
@@ -4979,14 +4972,15 @@ static void SwapMovesTypeSprites(u8 moveIndex1, u8 moveIndex2)
     sprite2->animEnded = FALSE;
 }
 
-static u8 LoadMonGfxAndSprite(struct Pokemon *mon, s16 *state)
+static u8 LoadMonGfxAndSprite(s16 *state)
 {
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
+    const struct CompressedSpritePalette *pal1, *pal2;
 
     switch (*state)
     {
     default:
-        return CreateMonSprite(mon);
+        return CreateMonSprite();
     case 0:
         if (gMain.inBattle)
         {
@@ -5015,8 +5009,21 @@ static u8 LoadMonGfxAndSprite(struct Pokemon *mon, s16 *state)
         (*state)++;
         return 0xFF;
     case 1:
-        LoadCompressedSpritePaletteWithTag(GetMonSpritePalFromSpeciesAndPersonality(summary->species2, summary->isShiny, summary->pid), summary->species2);
-        SetMultiuseSpriteTemplateToPokemon(summary->species2, B_POSITION_OPPONENT_LEFT);
+        if (!summary->isEgg)
+        {
+            if (PBH_PALETAS_UNICAS)
+                LoadCompressedSpritePaletteWithTagHueShifted(GetMonSpritePalFromSpeciesAndPersonality(summary->species2, summary->isShiny, summary->pid), summary->species2, &sMonSummaryScreen->currentMon.box);            
+            else
+                LoadCompressedSpritePaletteWithTag(GetMonSpritePalFromSpeciesAndPersonality(summary->species2, summary->isShiny, summary->pid), summary->species2);
+            SetMultiuseSpriteTemplateToPokemon(summary->species2, B_POSITION_OPPONENT_LEFT);
+        }           
+        else
+            {
+            pal1 = &gEgg1PaletteTable[gSpeciesInfo[summary->species].types[0]];
+            pal2 = &gEgg2PaletteTable[gSpeciesInfo[summary->species].types[1]];
+            LoadCompressedEggSpritePalette(pal1, pal2);
+            SetMultiuseSpriteTemplateToPokemon(pal1->tag, B_POSITION_OPPONENT_LEFT);
+        }
         (*state)++;
         return 0xFF;
     }
@@ -5034,7 +5041,7 @@ static void PlayMonCry(void)
     }
 }
 
-static u8 CreateMonSprite(struct Pokemon *unused)
+static u8 CreateMonSprite(void)
 {
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
     u8 spriteId = CreateSprite(&gMultiuseSpriteTemplate, 204, 76, 5);
