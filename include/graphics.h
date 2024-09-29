@@ -65,6 +65,44 @@ extern const u32 gOpenPokeballGfx[];
 // Pokémon gfx
 extern const u16 gMonIconPalettes[][16];
 
+//Pokémon eggs
+extern const u32 gMonPalette_Egg_Normal1[];
+extern const u32 gMonPalette_Egg_Normal2[];
+extern const u32 gMonPalette_Egg_Fighting1[];
+extern const u32 gMonPalette_Egg_Fighting2[];
+extern const u32 gMonPalette_Egg_Flying1[];
+extern const u32 gMonPalette_Egg_Flying2[];
+extern const u32 gMonPalette_Egg_Poison1[];
+extern const u32 gMonPalette_Egg_Poison2[];
+extern const u32 gMonPalette_Egg_Ground1[];
+extern const u32 gMonPalette_Egg_Ground2[];
+extern const u32 gMonPalette_Egg_Rock1[];
+extern const u32 gMonPalette_Egg_Rock2[];
+extern const u32 gMonPalette_Egg_Bug1[];
+extern const u32 gMonPalette_Egg_Bug2[];
+extern const u32 gMonPalette_Egg_Ghost1[];
+extern const u32 gMonPalette_Egg_Ghost2[];
+extern const u32 gMonPalette_Egg_Steel1[];
+extern const u32 gMonPalette_Egg_Steel2[];
+extern const u32 gMonPalette_Egg_Fire1[];
+extern const u32 gMonPalette_Egg_Fire2[];
+extern const u32 gMonPalette_Egg_Water1[];
+extern const u32 gMonPalette_Egg_Water2[];
+extern const u32 gMonPalette_Egg_Grass1[];
+extern const u32 gMonPalette_Egg_Grass2[];
+extern const u32 gMonPalette_Egg_Electric1[];
+extern const u32 gMonPalette_Egg_Electric2[];
+extern const u32 gMonPalette_Egg_Psychic1[];
+extern const u32 gMonPalette_Egg_Psychic2[];
+extern const u32 gMonPalette_Egg_Ice1[];
+extern const u32 gMonPalette_Egg_Ice2[];
+extern const u32 gMonPalette_Egg_Dragon1[];
+extern const u32 gMonPalette_Egg_Dragon2[];
+extern const u32 gMonPalette_Egg_Dark1[];
+extern const u32 gMonPalette_Egg_Dark2[];
+extern const u32 gMonPalette_Egg_Fairy1[];
+extern const u32 gMonPalette_Egg_Fairy2[];
+
 // pokeblock
 extern const u32 gMenuPokeblock_Gfx[];
 extern const u32 gMenuPokeblock_Pal[];
@@ -2724,6 +2762,8 @@ extern const u32 gBattleAnimSpritePal_AuraSphere[];
 extern const u32 gBattleAnimSpritePal_AvalancheRocks[];
 extern const u32 gBattleAnimSpriteGfx_NewPokeball[];
 extern const u32 gBattleAnimSpritePal_NewPokeball[];
+extern const u32 gBattleAnimSpriteGfx_Beam[];
+extern const u32 gBattleAnimSpritePal_Beam[];
 extern const u32 gBattleAnimSpriteGfx_BerryEaten[];
 extern const u32 gBattleAnimSpritePal_BerryEaten[];
 extern const u32 gBattleAnimSpriteGfx_BerryNormal[];
@@ -2732,6 +2772,8 @@ extern const u32 gBattleAnimSpriteGfx_BigRock[];
 extern const u32 gBattleAnimSpritePal_BigRock[];
 extern const u32 gBattleAnimSpriteGfx_BlacephalonHead[];
 extern const u32 gBattleAnimSpritePal_BlacephalonHead[];
+extern const u32 gBattleAnimSpriteGfx_BloodMoon[];
+extern const u32 gBattleAnimSpritePal_BloodMoon[];
 extern const u32 gBattleAnimSpritePal_BlueFlare[];
 extern const u32 gBattleAnimSpriteGfx_Branch[];
 extern const u32 gBattleAnimSpritePal_Branch[];
@@ -2825,12 +2867,16 @@ extern const u32 gBattleAnimSpriteGfx_PoisonColumn[];
 extern const u32 gBattleAnimSpritePal_PoisonColumn[];
 extern const u32 gBattleAnimSpriteGfx_PowerTrick[];
 extern const u32 gBattleAnimSpritePal_PowerTrick[];
+extern const u32 gBattleAnimSpriteGfx_PurpleChain[];
+extern const u32 gBattleAnimSpritePal_PurpleChain[];
 extern const u32 gBattleAnimSpriteGfx_PurpleDrake[];
 extern const u32 gBattleAnimSpritePal_PurpleDrake[];
 extern const u32 gBattleAnimSpriteGfx_QuickGuard[];
 extern const u32 gBattleAnimSpritePal_QuickGuard[];
 extern const u32 gBattleAnimSpriteGfx_RazorShell[];
 extern const u32 gBattleAnimSpritePal_RazorShell[];
+extern const u32 gBattleAnimSpriteGfx_RedExplosion[];
+extern const u32 gBattleAnimSpritePal_RedExplosion[];
 extern const u32 gBattleAnimSpriteGfx_RocksSmall[];
 extern const u32 gBattleAnimSpriteGfx_NewRocks[];
 extern const u32 gBattleAnimSpritePal_NewRocks[];
@@ -3361,5 +3407,22 @@ extern const u8 gMailTilemap_Retro[];
 
 extern const u8 gMonMarkingsMenu_Gfx[];
 extern const u16 gMonMarkingsMenu_Pal[];
+
+//Tutoriales
+    //Iconos de tipos
+    extern const u32 gIconosTipos_Gfx[];
+    extern const u32 gIconosTipos_Pal[];
+
+    //Minijuego de Zubat
+    extern const u32 TutorialBG1_Tileset[];
+    extern const u32 TutorialBG1_Tilemap[];
+    extern const u32 TutorialBG2_Tileset[];
+    extern const u32 TutorialBG2_Tilemap[];
+    extern const u16 TutorialBG_Palette[];
+    extern const u8 ZubatSprite[];
+    extern const u8 KoffingSprite[];
+    extern const u8 BeamSprite[];
+    extern const u8 ZubatIcon[];
+    extern const u16 ZubatKoffing_Palette[];
 
 #endif //GUARD_GRAPHICS_H

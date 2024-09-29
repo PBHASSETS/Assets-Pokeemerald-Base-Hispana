@@ -36,6 +36,7 @@
 #include "text.h"
 #include "text_window.h"
 #include "trig.h"
+#include "util.h"
 #include "walda_phrase.h"
 #include "window.h"
 #include "constants/form_change_types.h"
@@ -44,6 +45,7 @@
 #include "constants/rgb.h"
 #include "constants/songs.h"
 #include "constants/pokemon_icon.h"
+#include "config/pbh.h"
 
 /*
     NOTE: This file is large. Some general groups of functions have
@@ -52,6 +54,21 @@
           hard and fast rules, but give a basic idea of where certain
           types of functions are likely located.
 */
+
+#define CURSOR_MOVE_BASE_STEPS_WRAP 3
+#define CURSOR_MOVE_BASE_STEPS_NO_WRAP 3
+
+#define BOX_SCROLL_SPEED_FACTOR 4
+#define BOX_SCROLL_ARROWS_START_X_DELTA 12
+
+#define BOX_SCROLL_SPEED(input) ((input) * 6 * BOX_SCROLL_SPEED_FACTOR)
+
+#define PARTY_MENU_SCROLL_DELTA 2
+#define PARTY_MENU_ADJUSTED_SCROLL_TIMER (20 / PARTY_MENU_SCROLL_DELTA)
+
+#define COMPACT_PARTY_SPRITES_DELTA 2
+
+#define MON_HAND_DELTA 2
 
 // PC main menu options
 enum {
@@ -357,7 +374,7 @@ struct Wallpaper
 {
     const u32 *tiles;
     const u32 *tilemap;
-    const u16 *palettes;
+    const u16 ALIGNED(4) *palettes;
 };
 
 struct StorageMessage
@@ -404,10 +421,8 @@ struct PokemonStorageSystemData
     u8 screenChangeType;
     bool8 isReopening;
     u8 taskId;
-    u16 partyMenuTilemapBuffer[0x108];
-    u16 partyMenuUnused1; // Never read
+    u16 partyMenuTilemapBuffer[264];
     u16 partyMenuY;
-    u8 partyMenuUnused2; // Unused
     u8 partyMenuMoveTimer;
     u8 showPartyMenuState;
     bool8 closeBoxFlashing;
@@ -418,18 +433,8 @@ struct PokemonStorageSystemData
     s16 scrollSpeed;
     u16 scrollTimer;
     u8 wallpaperOffset;
-    u8 scrollUnused1; // Never read
-    u8 scrollToBoxIdUnused; // Never read
-    u16 scrollUnused2; // Never read
-    s16 scrollDirectionUnused; // Never read.
-    u16 scrollUnused3; // Never read
-    u16 scrollUnused4; // Never read
-    u16 scrollUnused5; // Never read
-    u16 scrollUnused6; // Never read
-    u8 filler1[22];
-    u8 boxTitleTiles[1024];
+    u8 ALIGNED(2) boxTitleTiles[1024];
     u8 boxTitleCycleId;
-    u8 wallpaperLoadState; // Written to, but never read.
     u8 wallpaperLoadBoxId;
     s8 wallpaperLoadDir;
     u16 boxTitlePal[16];
@@ -439,11 +444,9 @@ struct PokemonStorageSystemData
     struct Sprite *nextBoxTitleSprites[2];
     struct Sprite *arrowSprites[2];
     u32 wallpaperPalBits;
-    u8 filler2[80]; // Unused
-    u16 unkUnused1; // Never read.
     s16 wallpaperSetId;
     s16 wallpaperId;
-    u16 wallpaperTilemap[360];
+    u16 ALIGNED(4) wallpaperTilemap[360];
     u8 wallpaperChangeState;
     u8 scrollState;
     u8 scrollToBoxId;
@@ -461,19 +464,16 @@ struct PokemonStorageSystemData
     u8 incomingBoxId;
     u8 shiftTimer;
     u8 numPartyToCompact;
-    u16 iconScrollDistance;
+    s16 iconScrollDistance;
     s16 iconScrollPos;
     s16 iconScrollSpeed;
     u16 iconScrollNumIncoming;
     u8 iconScrollCurColumn;
-    s8 iconScrollDirection; // Unnecessary duplicate of scrollDirection
     u8 iconScrollState;
-    u8 iconScrollToBoxId; // Unused duplicate of scrollToBoxId
     struct WindowTemplate menuWindow;
     struct StorageMenu menuItems[7];
     u8 menuItemsCount;
     u8 menuWidth;
-    u8 menuUnusedField; // Never read.
     u16 menuWindowId;
     struct Sprite *cursorSprite;
     struct Sprite *cursorShadowSprite;
@@ -495,7 +495,6 @@ struct PokemonStorageSystemData
     u32 displayMonPersonality;
     u16 displayMonSpecies;
     u16 displayMonItemId;
-    u16 displayUnusedVar;
     bool8 setMosaic;
     u8 displayMonMarkings;
     u8 displayMonLevel;
@@ -541,15 +540,15 @@ struct PokemonStorageSystemData
     struct ItemIcon itemIcons[MAX_ITEM_ICONS];
     u16 movingItemId;
     u16 itemInfoWindowOffset;
-    u8 unkUnused2; // Unused
     u16 displayMonPalOffset;
     u16 *displayMonTilePtr;
     struct Sprite *displayMonSprite;
-    u16 displayMonPalBuffer[0x40];
+    u16 displayMonPalBuffer[64];
     u8 ALIGNED(4) tileBuffer[MON_PIC_SIZE * MAX_MON_PIC_FRAMES];
-    u8 ALIGNED(4) itemIconBuffer[0x800];
-    u8 wallpaperBgTilemapBuffer[0x1000];
-    u8 displayMenuTilemapBuffer[0x800];
+    u8 ALIGNED(4) itemIconBuffer[2048];
+    u8 ALIGNED(4) wallpaperBgTilemapBuffer[4096];
+    u8 ALIGNED(4) displayMenuTilemapBuffer[2048];
+    u8 ALIGNED(4) eggPalette[2];
 };
 
 static u32 sItemIconGfxBuffer[98];
@@ -786,9 +785,12 @@ static struct Sprite *CreateChooseBoxArrows(u16, u16, u8, u8, u8);
 // Box title
 static void InitBoxTitle(u8);
 static void CreateIncomingBoxTitle(u8, s8);
+static void CreateInstantIncomingBoxTitle(u8 boxId, s8 direction);
 static void CycleBoxTitleSprites(void);
 static void SpriteCB_IncomingBoxTitle(struct Sprite *);
 static void SpriteCB_OutgoingBoxTitle(struct Sprite *);
+static void SpriteCB_InstantIncomingBoxTitle(struct Sprite *);
+static void SpriteCB_InstantOutgoingBoxTitle(struct Sprite *);
 static void CycleBoxTitleColor(void);
 static s16 GetBoxTitleBaseX(const u8 *);
 
@@ -923,18 +925,6 @@ static const union AnimCmd *const sAnims_ChooseBoxMenu[] =
     sAnim_ChooseBoxMenu_BottomRight
 };
 
-static const union AffineAnimCmd sAffineAnim_ChooseBoxMenu[] =
-{
-    AFFINEANIMCMD_FRAME(0xE0, 0xE0, 0, 0),
-    AFFINEANIMCMD_END
-};
-
-// Unused
-static const union AffineAnimCmd *const sAffineAnims_ChooseBoxMenu[] =
-{
-    sAffineAnim_ChooseBoxMenu
-};
-
 static const u8 sChooseBoxMenu_TextColors[] = {TEXT_COLOR_RED, TEXT_DYNAMIC_COLOR_6, TEXT_DYNAMIC_COLOR_5};
 static const u8 sText_OutOf30[] = _("/30");
 
@@ -943,7 +933,6 @@ static const u8 sChooseBoxMenuCenter_Gfx[]   = INCBIN_U8("graphics/pokemon_stora
 static const u8 sChooseBoxMenuSides_Gfx[]    = INCBIN_U8("graphics/pokemon_storage/box_selection_popup_sides.4bpp");
 static const u32 sScrollingBg_Gfx[]          = INCBIN_U32("graphics/pokemon_storage/scrolling_bg.4bpp.lz");
 static const u32 sScrollingBg_Tilemap[]      = INCBIN_U32("graphics/pokemon_storage/scrolling_bg.bin.lz");
-static const u16 sDisplayMenu_Pal[]          = INCBIN_U16("graphics/pokemon_storage/display_menu.gbapal"); // Unused
 static const u32 sDisplayMenu_Tilemap[]      = INCBIN_U32("graphics/pokemon_storage/display_menu.bin.lz");
 static const u16 sPkmnData_Tilemap[]         = INCBIN_U16("graphics/pokemon_storage/pkmn_data.bin");
 // sInterface_Pal - parts of the display frame, "PkmnData"'s normal color, Close Box
@@ -956,7 +945,6 @@ static const u16 sPartySlotFilled_Tilemap[]  = INCBIN_U16("graphics/pokemon_stor
 static const u16 sPartySlotEmpty_Tilemap[]   = INCBIN_U16("graphics/pokemon_storage/party_slot_empty.bin");
 static const u16 sWaveform_Pal[]             = INCBIN_U16("graphics/pokemon_storage/waveform.gbapal");
 static const u32 sWaveform_Gfx[]             = INCBIN_U32("graphics/pokemon_storage/waveform.4bpp");
-static const u16 sUnused_Pal[]               = INCBIN_U16("graphics/pokemon_storage/unused.gbapal");
 static const u16 sTextWindows_Pal[]          = INCBIN_U16("graphics/pokemon_storage/text_windows.gbapal");
 
 static const struct WindowTemplate sWindowTemplates[] =
@@ -1231,8 +1219,6 @@ static const union AffineAnimCmd *const sAffineAnims_ReleaseMon[] =
 
 #include "data/wallpapers.h"
 
-static const u16 sUnusedColor = RGB(26, 29, 8);
-
 static const struct SpriteSheet sSpriteSheet_Arrow = {sArrow_Gfx, sizeof(sArrow_Gfx), GFXTAG_ARROW};
 
 static const struct OamData sOamData_BoxTitle =
@@ -1363,30 +1349,6 @@ void DrawTextWindowAndBufferTiles(const u8 *string, void *dst, u8 zero1, u8 zero
     RemoveWindow(windowId);
 }
 
-static void UNUSED UnusedDrawTextWindow(const u8 *string, void *dst, u16 offset, u8 bgColor, u8 fgColor, u8 shadowColor)
-{
-    u32 tilesSize;
-    u8 windowId;
-    u8 txtColor[3];
-    u8 *tileData1, *tileData2;
-    struct WindowTemplate winTemplate = {0};
-
-    winTemplate.width = StringLength_Multibyte(string);
-    winTemplate.height = 2;
-    tilesSize = winTemplate.width * TILE_SIZE_4BPP;
-    windowId = AddWindow(&winTemplate);
-    FillWindowPixelBuffer(windowId, PIXEL_FILL(bgColor));
-    tileData1 = (u8 *) GetWindowAttribute(windowId, WINDOW_TILE_DATA);
-    tileData2 = (winTemplate.width * TILE_SIZE_4BPP) + tileData1;
-    txtColor[0] = bgColor;
-    txtColor[1] = fgColor;
-    txtColor[2] = shadowColor;
-    AddTextPrinterParameterized4(windowId, FONT_NORMAL, 0, 2, 0, 0, txtColor, TEXT_SKIP_DRAW, string);
-    CpuCopy16(tileData1, dst, tilesSize);
-    CpuCopy16(tileData2, dst + offset, tilesSize);
-    RemoveWindow(windowId);
-}
-
 u8 CountMonsInBox(u8 boxId)
 {
     u16 i, count;
@@ -1477,32 +1439,6 @@ u8 *StringCopyAndFillWithSpaces(u8 *dst, const u8 *src, u16 n)
     *str = EOS;
     return str;
 }
-
-static void UNUSED UnusedWriteRectCpu(u16 *dest, u16 dest_left, u16 dest_top, const u16 *src, u16 src_left, u16 src_top, u16 dest_width, u16 dest_height, u16 src_width)
-{
-    u16 i;
-
-    dest_width *= 2;
-    dest += dest_top * 0x20 + dest_left;
-    src += src_top * src_width + src_left;
-    for (i = 0; i < dest_height; i++)
-    {
-        CpuCopy16(src, dest, dest_width);
-        dest += 0x20;
-        src += src_width;
-    }
-}
-
-static void UNUSED UnusedWriteRectDma(u16 *dest, u16 dest_left, u16 dest_top, u16 width, u16 height)
-{
-    u16 i;
-
-    dest += dest_top * 0x20 + dest_left;
-    width *= 2;
-    for (i = 0; i < height; dest += 0x20, i++)
-        Dma3FillLarge16_(0, dest, width);
-}
-
 
 //------------------------------------------------------------------------------
 //  SECTION: Main menu
@@ -1685,37 +1621,6 @@ static void CB2_ExitPokeStorage(void)
     sPreviousBoxOption = GetCurrentBoxOption();
     gFieldCallback = FieldTask_ReturnToPcMenu;
     SetMainCallback2(CB2_ReturnToField);
-}
-
-static s16 UNUSED StorageSystemGetNextMonIndex(struct BoxPokemon *box, s8 startIdx, u8 stopIdx, u8 mode)
-{
-    s16 i;
-    s16 direction;
-    if (mode == 0 || mode == 1)
-    {
-        direction = 1;
-    }
-    else
-    {
-        direction = -1;
-    }
-    if (mode == 1 || mode == 3)
-    {
-        for (i = startIdx + direction; i >= 0 && i <= stopIdx; i += direction)
-        {
-            if (GetBoxMonData(box + i, MON_DATA_SPECIES) != 0)
-                return i;
-        }
-    }
-    else
-    {
-        for (i = startIdx + direction; i >= 0 && i <= stopIdx; i += direction)
-        {
-            if (GetBoxMonData(box + i, MON_DATA_SPECIES) != 0 && !GetBoxMonData(box + i, MON_DATA_IS_EGG))
-                return i;
-        }
-    }
-    return -1;
 }
 
 void ResetPokemonStorageSystem(void)
@@ -3990,15 +3895,34 @@ static void CreateDisplayMonSprite(void)
 
 static void LoadDisplayMonGfx(u16 species, u32 pid)
 {
+    const struct CompressedSpritePalette *pal1, *pal2;
+
     if (sStorage->displayMonSprite == NULL)
         return;
 
-    if (species != SPECIES_NONE)
+    if (PBH_HUEVOS_COLOR_TIPO && species == SPECIES_EGG)
+    {
+        pal1 = &gEgg1PaletteTable[sStorage->eggPalette[0]];
+        pal2 = &gEgg2PaletteTable[sStorage->eggPalette[1]];
+        LoadSpecialPokePic(sStorage->tileBuffer, species, pid, TRUE);
+        LZ77UnCompWram(pal1->data, sStorage->displayMonPalBuffer);
+        LZ77UnCompWram(pal2->data, gDecompressionBuffer);
+        CpuFastCopy(sStorage->tileBuffer, sStorage->displayMonTilePtr, MON_PIC_SIZE);
+        LoadPalette(sStorage->displayMonPalBuffer, sStorage->displayMonPalOffset, PLTT_SIZE_4BPP/2);
+        LoadPalette(gDecompressionBuffer, sStorage->displayMonPalOffset + 8, PLTT_SIZE_4BPP/2);
+        sStorage->displayMonSprite->invisible = FALSE;
+    }
+    else if (species != SPECIES_NONE)
     {
         LoadSpecialPokePic(sStorage->tileBuffer, species, pid, TRUE);
         LZ77UnCompWram(sStorage->displayMonPalette, sStorage->displayMonPalBuffer);
         CpuCopy32(sStorage->tileBuffer, sStorage->displayMonTilePtr, MON_PIC_SIZE);
         LoadPalette(sStorage->displayMonPalBuffer, sStorage->displayMonPalOffset, PLTT_SIZE_4BPP);
+        if (PBH_PALETAS_UNICAS)
+        {
+            UniquePaletteByPersonality(sStorage->displayMonPalOffset, species, pid);
+            CpuFastCopy(&gPlttBufferFaded[sStorage->displayMonPalOffset], &gPlttBufferUnfaded[sStorage->displayMonPalOffset], PLTT_SIZE_4BPP);
+        }
         sStorage->displayMonSprite->invisible = FALSE;
     }
     else
@@ -4091,7 +4015,6 @@ static void InitSupplementalTilemaps(void)
 
 static void SetUpShowPartyMenu(void)
 {
-    sStorage->partyMenuUnused1 = 20;
     sStorage->partyMenuY = 2;
     sStorage->partyMenuMoveTimer = 0;
     CreatePartyMonsSprites(FALSE);
@@ -4099,16 +4022,15 @@ static void SetUpShowPartyMenu(void)
 
 static bool8 ShowPartyMenu(void)
 {
-    if (sStorage->partyMenuMoveTimer == 20)
+    if (sStorage->partyMenuMoveTimer == PARTY_MENU_ADJUSTED_SCROLL_TIMER)
         return FALSE;
 
-    sStorage->partyMenuUnused1--;
-    sStorage->partyMenuY++;
-    TilemapUtil_Move(TILEMAPID_PARTY_MENU, 3, 1);
+    sStorage->partyMenuY += PARTY_MENU_SCROLL_DELTA;
+    TilemapUtil_Move(TILEMAPID_PARTY_MENU, 3, PARTY_MENU_SCROLL_DELTA);
     TilemapUtil_Update(TILEMAPID_PARTY_MENU);
     ScheduleBgCopyTilemapToVram(1);
-    MovePartySprites(8);
-    if (++sStorage->partyMenuMoveTimer == 20)
+    MovePartySprites(8 * PARTY_MENU_SCROLL_DELTA);
+    if (++sStorage->partyMenuMoveTimer == PARTY_MENU_ADJUSTED_SCROLL_TIMER)
     {
         sInPartyMenu = TRUE;
         return FALSE;
@@ -4121,7 +4043,6 @@ static bool8 ShowPartyMenu(void)
 
 static void SetUpHidePartyMenu(void)
 {
-    sStorage->partyMenuUnused1 = 0;
     sStorage->partyMenuY = 22;
     sStorage->partyMenuMoveTimer = 0;
     if (sStorage->boxOption == OPTION_MOVE_ITEMS)
@@ -4130,15 +4051,14 @@ static void SetUpHidePartyMenu(void)
 
 static bool8 HidePartyMenu(void)
 {
-    if (sStorage->partyMenuMoveTimer != 20)
+    if (sStorage->partyMenuMoveTimer != PARTY_MENU_ADJUSTED_SCROLL_TIMER)
     {
-        sStorage->partyMenuUnused1++;
-        sStorage->partyMenuY--;
-        TilemapUtil_Move(TILEMAPID_PARTY_MENU, 3, -1);
+        sStorage->partyMenuY -= PARTY_MENU_SCROLL_DELTA;
+        TilemapUtil_Move(TILEMAPID_PARTY_MENU, 3, -PARTY_MENU_SCROLL_DELTA);
         TilemapUtil_Update(TILEMAPID_PARTY_MENU);
-        FillBgTilemapBufferRect_Palette0(1, 0x100, 10, sStorage->partyMenuY, 12, 1);
-        MovePartySprites(-8);
-        if (++sStorage->partyMenuMoveTimer != 20)
+        FillBgTilemapBufferRect_Palette0(1, 256, 10, sStorage->partyMenuY, 12, PARTY_MENU_SCROLL_DELTA);
+        MovePartySprites(-8 * PARTY_MENU_SCROLL_DELTA);
+        if (++sStorage->partyMenuMoveTimer != PARTY_MENU_ADJUSTED_SCROLL_TIMER)
         {
             ScheduleBgCopyTilemapToVram(1);
             return TRUE;
@@ -4437,7 +4357,6 @@ static void InitMonIconFields(void)
         sStorage->boxMonsSprites[i] = NULL;
 
     sStorage->movingMonSprite = NULL;
-    sStorage->unkUnused1 = 0;
 }
 
 static u8 GetMonIconPriorityByCursorPos(void)
@@ -4538,7 +4457,7 @@ static void SpriteCB_BoxMonIconScrollIn(struct Sprite *sprite)
     if (sprite->sDistance != 0)
     {
         // Icon moving
-        sprite->sDistance--;
+        sprite->sDistance -= BOX_SCROLL_SPEED_FACTOR;
         sprite->x += sprite->sSpeed;
     }
     else
@@ -4568,6 +4487,19 @@ static void SpriteCB_BoxMonIconScrollOut(struct Sprite *sprite)
     }
 }
 
+static void DestroyAllBoxMonIcons(void)
+{
+    u32 boxPosition;
+    for (boxPosition = 0; boxPosition < IN_BOX_ROWS * IN_BOX_COLUMNS; boxPosition++)
+    {
+        if (sStorage->boxMonsSprites[boxPosition] != NULL)
+        {
+            DestroyBoxMonIcon(sStorage->boxMonsSprites[boxPosition]);
+            sStorage->boxMonsSprites[boxPosition] = NULL;
+        }
+    }
+}
+
 // Sprites for Pokémon icons are destroyed during
 // the box scroll once they've gone offscreen
 static void DestroyBoxMonIconsInColumn(u8 column)
@@ -4592,7 +4524,8 @@ static u8 CreateBoxMonIconsInColumn(u8 column, u16 distance, s16 speed)
     s32 i;
     u16 y = 44;
     s16 xDest = 8 * (3 * column) + 100;
-    u16 x = xDest - ((distance + 1) * speed);
+    s32 speedSign = (speed >= 0) ? 1 : -1;
+    u16 x = xDest - ((distance + BOX_SCROLL_SPEED_FACTOR ) * speedSign * 6);
     u8 subpriority = 19 - column;
     u8 iconsCreated = 0;
     u8 boxPosition = column;
@@ -4658,10 +4591,10 @@ static u8 CreateBoxMonIconsInColumn(u8 column, u16 distance, s16 speed)
 static void InitBoxMonIconScroll(u8 boxId, s8 direction)
 {
     sStorage->iconScrollState = 0;
-    sStorage->iconScrollToBoxId = boxId;
-    sStorage->iconScrollDirection = direction;
+    sStorage->scrollToBoxId = boxId;
+    sStorage->scrollDirection = direction;
     sStorage->iconScrollDistance = 32;
-    sStorage->iconScrollSpeed = -(6 * direction);
+    sStorage->iconScrollSpeed = -BOX_SCROLL_SPEED(direction);
     sStorage->iconScrollNumIncoming = 0;
     GetIncomingBoxMonData(boxId);
     if (direction > 0)
@@ -4673,10 +4606,33 @@ static void InitBoxMonIconScroll(u8 boxId, s8 direction)
     StartBoxMonIconsScrollOut(sStorage->iconScrollSpeed);
 }
 
+static bool32 InstantBoxMonIconScroll(u32 boxId)
+{
+    switch (sStorage->iconScrollState)
+    {
+    case 0:
+        DestroyAllBoxMonIcons();
+        sStorage->iconScrollState++;
+        break;
+    case 1:
+        InitBoxMonSprites(boxId);
+        sStorage->bg2_X += sStorage->scrollSpeed * sStorage->scrollTimer;
+        sStorage->iconScrollState++;
+        break;
+    case 2:
+        sStorage->iconScrollDistance = 0;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static bool8 UpdateBoxMonIconScroll(void)
 {
-    if (sStorage->iconScrollDistance != 0)
-        sStorage->iconScrollDistance--;
+    if (sStorage->iconScrollDistance >= 0)
+    {
+        sStorage->iconScrollDistance = max(sStorage->iconScrollDistance - BOX_SCROLL_SPEED_FACTOR, 0);
+    }
 
     switch (sStorage->iconScrollState)
     {
@@ -4686,17 +4642,17 @@ static bool8 UpdateBoxMonIconScroll(void)
         {
             // A column of icons has gone offscreen, destroy them
             DestroyBoxMonIconsInColumn(sStorage->iconScrollCurColumn);
-            sStorage->iconScrollPos += sStorage->iconScrollDirection * 24;
+            sStorage->iconScrollPos += sStorage->scrollDirection * 24;
             sStorage->iconScrollState++;
         }
-        break;
+        else
+            break;
     case 1:
         // Create the new incoming column of icons
-        sStorage->iconScrollPos += sStorage->iconScrollSpeed;
         sStorage->iconScrollNumIncoming += CreateBoxMonIconsInColumn(sStorage->iconScrollCurColumn, sStorage->iconScrollDistance, sStorage->iconScrollSpeed);
 
-        if ((sStorage->iconScrollDirection > 0 && sStorage->iconScrollCurColumn == IN_BOX_COLUMNS - 1)
-         || (sStorage->iconScrollDirection < 0 && sStorage->iconScrollCurColumn == 0))
+        if ((sStorage->scrollDirection > 0 && sStorage->iconScrollCurColumn == IN_BOX_COLUMNS - 1)
+         || (sStorage->scrollDirection < 0 && sStorage->iconScrollCurColumn == 0))
         {
             // Scroll has reached final column
             sStorage->iconScrollState++;
@@ -4704,7 +4660,7 @@ static bool8 UpdateBoxMonIconScroll(void)
         else
         {
             // Continue scrolling
-            sStorage->iconScrollCurColumn += sStorage->iconScrollDirection;
+            sStorage->iconScrollCurColumn += sStorage->scrollDirection;
             sStorage->iconScrollState = 0;
         }
         break;
@@ -4843,9 +4799,9 @@ static void MovePartySpriteToNextSlot(struct Sprite *sprite, u16 partyId)
 
     sprite->sMonX = (u16)(sprite->x) * 8;
     sprite->sMonY = (u16)(sprite->y) * 8;
-    sprite->sSpeedX = ((x * 8) - sprite->sMonX) / 8;
-    sprite->sSpeedY = ((y * 8) - sprite->sMonY) / 8;
-    sprite->data[6] = 8;
+    sprite->sSpeedX = ((x * 8) - sprite->sMonX) / (8 / COMPACT_PARTY_SPRITES_DELTA);
+    sprite->sSpeedY = ((y * 8) - sprite->sMonY) / (8 / COMPACT_PARTY_SPRITES_DELTA);
+    sprite->sMoveSteps = (8 / COMPACT_PARTY_SPRITES_DELTA);
     sprite->callback = SpriteCB_MovePartyMonToNextSlot;
 }
 
@@ -4999,8 +4955,8 @@ static bool8 MoveShiftingMons(void)
     if (sStorage->shiftTimer == 16)
         return FALSE;
 
-    sStorage->shiftTimer++;
-    if (sStorage->shiftTimer & 1)
+    sStorage->shiftTimer += MON_HAND_DELTA;
+    if (MON_HAND_DELTA >= 2 || sStorage->shiftTimer & 1)
     {
         (*sStorage->shiftMonSpritePtr)->y--;
         sStorage->movingMonSprite->y++;
@@ -5285,17 +5241,9 @@ static void SetUpScrollToBox(u8 boxId)
 {
     s8 direction = DetermineBoxScrollDirection(boxId);
 
-    sStorage->scrollSpeed = (direction > 0) ? 6 : -6;
-    sStorage->scrollUnused1 = (direction > 0) ? 1 : 2;
-    sStorage->scrollTimer = 32;
-    sStorage->scrollToBoxIdUnused = boxId;
-    sStorage->scrollUnused2 = (direction <= 0) ? 5 : 0;
-    sStorage->scrollDirectionUnused = direction;
+    sStorage->scrollSpeed = BOX_SCROLL_SPEED((direction > 0) ? 1 : -1);
+    sStorage->scrollTimer = 32 / BOX_SCROLL_SPEED_FACTOR;
 
-    sStorage->scrollUnused3 = (direction > 0) ? 264 : 56;
-    sStorage->scrollUnused4 = (direction <= 0) ? 5 : 0;
-    sStorage->scrollUnused5 = 0;
-    sStorage->scrollUnused6 = 2;
     sStorage->scrollToBoxId = boxId;
     sStorage->scrollDirection = direction;
     sStorage->scrollState = 0;
@@ -5315,20 +5263,38 @@ static bool8 ScrollToBox(void)
             return TRUE;
 
         InitBoxMonIconScroll(sStorage->scrollToBoxId, sStorage->scrollDirection);
-        CreateIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
+        if (PBH_ALMACENAMIENTO_RAPIDO)
+            CreateInstantIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
+        else
+            CreateIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
         StartBoxScrollArrowsSlide(sStorage->scrollDirection);
         break;
     case 2:
-        iconsScrolling = UpdateBoxMonIconScroll();
-        if (sStorage->scrollTimer != 0)
+        if (PBH_ALMACENAMIENTO_RAPIDO)
         {
-            sStorage->bg2_X += sStorage->scrollSpeed;
-            if (--sStorage->scrollTimer != 0)
-                return TRUE;
-            CycleBoxTitleSprites();
-            StopBoxScrollArrowsSlide();
+            if (!InstantBoxMonIconScroll(sStorage->scrollToBoxId))
+            {
+                sStorage->scrollTimer = 0;
+                CycleBoxTitleSprites();
+                StopBoxScrollArrowsSlide();
+                return FALSE;
+            }
+            return TRUE;
         }
-        return iconsScrolling;
+        else
+        {
+            iconsScrolling = UpdateBoxMonIconScroll();
+            if (sStorage->scrollTimer != 0)
+            {
+                sStorage->bg2_X += sStorage->scrollSpeed;
+                if (--sStorage->scrollTimer != 0)
+                    return TRUE;
+                CycleBoxTitleSprites();
+                StopBoxScrollArrowsSlide();
+            }
+            return iconsScrolling;
+        }
+
     }
 
     sStorage->scrollState++;
@@ -5405,7 +5371,6 @@ static void LoadWallpaperGfx(u8 boxId, s8 direction)
     void *iconGfx;
     u32 tilesSize, iconSize;
 
-    sStorage->wallpaperLoadState = 0;
     sStorage->wallpaperLoadBoxId = boxId;
     sStorage->wallpaperLoadDir = direction;
     if (sStorage->wallpaperLoadDir != 0)
@@ -5424,7 +5389,7 @@ static void LoadWallpaperGfx(u8 boxId, s8 direction)
         if (sStorage->wallpaperLoadDir != 0)
             LoadPalette(wallpaper->palettes, BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2), 2 * PLTT_SIZE_4BPP);
         else
-            CpuCopy16(wallpaper->palettes, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
+            CpuFastCopy(wallpaper->palettes, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
 
         sStorage->wallpaperTiles = malloc_and_decompress(wallpaper->tiles, &tilesSize);
         LoadBgTiles(2, sStorage->wallpaperTiles, tilesSize, sStorage->wallpaperOffset << 8);
@@ -5435,18 +5400,18 @@ static void LoadWallpaperGfx(u8 boxId, s8 direction)
         LZ77UnCompWram(wallpaper->tilemap, sStorage->wallpaperTilemap);
         DrawWallpaper(sStorage->wallpaperTilemap, sStorage->wallpaperLoadDir, sStorage->wallpaperOffset);
 
-        CpuCopy16(wallpaper->palettes, sStorage->wallpaperTilemap, 0x40);
+        CpuFastCopy(wallpaper->palettes, sStorage->wallpaperTilemap, 64);
         CpuCopy16(GetWaldaWallpaperColorsPtr(), &sStorage->wallpaperTilemap[1], 4);
         CpuCopy16(GetWaldaWallpaperColorsPtr(), &sStorage->wallpaperTilemap[17], 4);
 
         if (sStorage->wallpaperLoadDir != 0)
             LoadPalette(sStorage->wallpaperTilemap, BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2), 2 * PLTT_SIZE_4BPP);
         else
-            CpuCopy16(sStorage->wallpaperTilemap, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
+            CpuFastCopy(sStorage->wallpaperTilemap, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
 
         sStorage->wallpaperTiles = malloc_and_decompress(wallpaper->tiles, &tilesSize);
         iconGfx = malloc_and_decompress(sWaldaWallpaperIcons[GetWaldaWallpaperIconId()], &iconSize);
-        CpuCopy32(iconGfx, sStorage->wallpaperTiles + 0x800, iconSize);
+        CpuFastCopy(iconGfx, sStorage->wallpaperTiles + 2048, iconSize);
         Free(iconGfx);
         LoadBgTiles(2, sStorage->wallpaperTiles, tilesSize, sStorage->wallpaperOffset << 8);
     }
@@ -5600,15 +5565,61 @@ static void CreateIncomingBoxTitle(u8 boxId, s8 direction)
         u8 spriteId = CreateSprite(&template, i * 32 + adjustedX, 28, 24);
 
         sStorage->nextBoxTitleSprites[i] = &gSprites[spriteId];
-        sStorage->nextBoxTitleSprites[i]->sSpeed = (-direction) * 6;
+        sStorage->nextBoxTitleSprites[i]->sSpeed = BOX_SCROLL_SPEED(-direction);
         sStorage->nextBoxTitleSprites[i]->sIncomingX = i * 32 + x;
-        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 0;
+        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 1;
         sStorage->nextBoxTitleSprites[i]->callback = SpriteCB_IncomingBoxTitle;
         StartSpriteAnim(sStorage->nextBoxTitleSprites[i], i);
 
-        sStorage->curBoxTitleSprites[i]->sSpeed = (-direction) * 6;
+        sStorage->curBoxTitleSprites[i]->sSpeed = BOX_SCROLL_SPEED(-direction);
         sStorage->curBoxTitleSprites[i]->sOutgoingDelay = 1;
         sStorage->curBoxTitleSprites[i]->callback = SpriteCB_OutgoingBoxTitle;
+    }
+}
+
+static void CreateInstantIncomingBoxTitle(u8 boxId, s8 direction)
+{
+    u16 palOffset;
+    s16 x, adjustedX;
+    u16 i;
+    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 512, GFXTAG_BOX_TITLE};
+    struct SpriteTemplate template = sSpriteTemplate_BoxTitle;
+
+    sStorage->boxTitleCycleId = (sStorage->boxTitleCycleId == 0);
+    if (sStorage->boxTitleCycleId == 0)
+    {
+        spriteSheet.tag = GFXTAG_BOX_TITLE;
+        palOffset = sStorage->boxTitlePalOffset;
+    }
+    else
+    {
+        spriteSheet.tag = GFXTAG_BOX_TITLE_ALT;
+        palOffset = sStorage->boxTitlePalOffset;
+        template.tileTag = GFXTAG_BOX_TITLE_ALT;
+        template.paletteTag = PALTAG_BOX_TITLE;
+    }
+
+    StringCopyPadded(sStorage->boxTitleText, GetBoxNamePtr(boxId), 0, BOX_NAME_LENGTH);
+    DrawTextWindowAndBufferTiles(sStorage->boxTitleText, sStorage->boxTitleTiles, 0, 0, 2);
+    LoadSpriteSheet(&spriteSheet);
+    LoadPalette(sBoxTitleColors[GetBoxWallpaper(boxId)], palOffset, sizeof(sBoxTitleColors[0]));
+    x = GetBoxTitleBaseX(GetBoxNamePtr(boxId));
+    adjustedX = x;
+    adjustedX += direction * 192;
+
+    // Title is split across two sprites
+    for (i = 0; i < 2; i++)
+    {
+        u8 spriteId = CreateSprite(&template, i * 32 + x, 28, 24);
+
+        sStorage->nextBoxTitleSprites[i] = &gSprites[spriteId];
+        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 1;
+        sStorage->nextBoxTitleSprites[i]->callback = SpriteCB_InstantIncomingBoxTitle;
+        sStorage->nextBoxTitleSprites[i]->invisible = TRUE;
+        StartSpriteAnim(sStorage->nextBoxTitleSprites[i], i);
+
+        sStorage->curBoxTitleSprites[i]->sOutgoingDelay = 1;
+        sStorage->curBoxTitleSprites[i]->callback = SpriteCB_InstantOutgoingBoxTitle;
     }
 }
 
@@ -5643,6 +5654,29 @@ static void SpriteCB_OutgoingBoxTitle(struct Sprite *sprite)
         sprite->sOutgoingX = sprite->x + sprite->x2;
         if (sprite->sOutgoingX < 64 || sprite->sOutgoingX > DISPLAY_WIDTH + 16)
             DestroySprite(sprite);
+    }
+}
+
+static void SpriteCB_InstantIncomingBoxTitle(struct Sprite *sprite)
+{
+    if (sprite->sIncomingDelay != 0)
+        sprite->sIncomingDelay--;
+    else
+    {
+        sprite->invisible = FALSE;
+        sprite->callback = SpriteCallbackDummy;
+    }
+}
+
+static void SpriteCB_InstantOutgoingBoxTitle(struct Sprite *sprite)
+{
+    if (sprite->sOutgoingDelay != 0)
+    {
+        sprite->sOutgoingDelay--;
+    }
+    else
+    {
+        DestroySprite(sprite);
     }
 }
 
@@ -5711,16 +5745,16 @@ static void StartBoxScrollArrowsSlide(s8 direction)
     if (direction < 0)
     {
         sStorage->arrowSprites[0]->sTimer = 29;
-        sStorage->arrowSprites[1]->sTimer = 5;
-        sStorage->arrowSprites[0]->data[2] = 72;
-        sStorage->arrowSprites[1]->data[2] = 72;
+        sStorage->arrowSprites[1]->sTimer = 1;
+        sStorage->arrowSprites[0]->data[2] = 72 - BOX_SCROLL_ARROWS_START_X_DELTA;
+        sStorage->arrowSprites[1]->data[2] = 72 - BOX_SCROLL_ARROWS_START_X_DELTA;
     }
     else
     {
-        sStorage->arrowSprites[0]->sTimer = 5;
+        sStorage->arrowSprites[0]->sTimer = 1;
         sStorage->arrowSprites[1]->sTimer = 29;
-        sStorage->arrowSprites[0]->data[2] = DISPLAY_WIDTH + 8;
-        sStorage->arrowSprites[1]->data[2] = DISPLAY_WIDTH + 8;
+        sStorage->arrowSprites[0]->data[2] = DISPLAY_WIDTH + 8 + BOX_SCROLL_ARROWS_START_X_DELTA;
+        sStorage->arrowSprites[1]->data[2] = DISPLAY_WIDTH + 8 + BOX_SCROLL_ARROWS_START_X_DELTA;
     }
     sStorage->arrowSprites[0]->data[7] = 0;
     sStorage->arrowSprites[1]->data[7] = 1;
@@ -5925,7 +5959,7 @@ static bool8 UpdateCursorPos(void)
         else
             return IsItemIconAnimActive();
     }
-    else if (--sStorage->cursorMoveSteps != 0)
+    else if (!(PBH_ALMACENAMIENTO_RAPIDO) && --sStorage->cursorMoveSteps != 0)
     {
         // Update position toward target
         sStorage->cursorNewX += sStorage->cursorSpeedX;
@@ -5967,6 +6001,7 @@ static bool8 UpdateCursorPos(void)
     }
     else
     {
+        sStorage->cursorMoveSteps = 0;
         // Time is up for cursor movement, make sure it's exactly at target
         sStorage->cursorSprite->x = sStorage->cursorTargetX;
         sStorage->cursorSprite->y = sStorage->cursorTargetY;
@@ -5992,9 +6027,9 @@ static void InitCursorMove(void)
     int yDistance, xDistance;
 
     if (sStorage->cursorVerticalWrap != 0 || sStorage->cursorHorizontalWrap != 0)
-        sStorage->cursorMoveSteps = 12;
+        sStorage->cursorMoveSteps = CURSOR_MOVE_BASE_STEPS_WRAP;
     else
-        sStorage->cursorMoveSteps = 6;
+        sStorage->cursorMoveSteps = CURSOR_MOVE_BASE_STEPS_NO_WRAP;
 
     if (sStorage->cursorFlipTimer)
         sStorage->cursorFlipTimer = sStorage->cursorMoveSteps >> 1;
@@ -6309,10 +6344,10 @@ static bool8 MonPlaceChange_CursorDown(void)
     switch (sStorage->cursorSprite->y2)
     {
     default:
-        sStorage->cursorSprite->y2++;
+        sStorage->cursorSprite->y2 += MON_HAND_DELTA;
         break;
     case 0:
-        sStorage->cursorSprite->y2++;
+        sStorage->cursorSprite->y2 += MON_HAND_DELTA;
         break;
     case 8: // Cursor has reached bottom
         return FALSE;
@@ -6328,13 +6363,12 @@ static bool8 MonPlaceChange_CursorUp(void)
     case 0: // Cursor has reached top
         return FALSE;
     default:
-        sStorage->cursorSprite->y2--;
+        sStorage->cursorSprite->y2 -= MON_HAND_DELTA;
         break;
     }
 
     return TRUE;
 }
-
 
 //------------------------------------------------------------------------------
 //  SECTION: Pokémon data
@@ -7064,8 +7098,7 @@ static void SetDisplayMonData(void *pokemon, u8 mode)
         *(txtPtr++) = TEXT_COLOR_WHITE;
         *(txtPtr++) = TEXT_COLOR_LIGHT_GRAY;
         *(txtPtr++) = CHAR_SPACE;
-        *(txtPtr++) = CHAR_EXTRA_SYMBOL;
-        *(txtPtr++) = CHAR_LV_2;
+        *(txtPtr++) = CHAR_LV;
 
         txtPtr = ConvertIntToDecimalStringN(txtPtr, sStorage->displayMonLevel, STR_CONV_MODE_LEFT_ALIGN, 3);
         txtPtr[0] = CHAR_SPACE;
@@ -8099,7 +8132,6 @@ static void AddMenu(void)
     PrintMenuTable(sStorage->menuWindowId, sStorage->menuItemsCount, (void *)sStorage->menuItems);
     InitMenuInUpperLeftCornerNormal(sStorage->menuWindowId, sStorage->menuItemsCount, 0);
     ScheduleBgCopyTilemapToVram(0);
-    sStorage->menuUnusedField = 0;
 }
 
 // Called after AddMenu to determine whether or not the handler callback should
@@ -8347,7 +8379,7 @@ static bool8 MultiMove_GrabSelection(void)
         if (!DoMonPlaceChange())
         {
             StartCursorAnim(CURSOR_ANIM_FIST);
-            MultiMove_InitMove(0, 256, 8);
+            MultiMove_InitMove(0, 256 * MON_HAND_DELTA, 8 / MON_HAND_DELTA);
             InitMultiMonPlaceChange(TRUE);
             sMultiMove->state++;
         }
@@ -8380,7 +8412,7 @@ static bool8 MultiMove_PlaceMons(void)
     {
     case 0:
         MultiMove_SetPlacedMonData();
-        MultiMove_InitMove(0, -256, 8);
+        MultiMove_InitMove(0, -256 * MON_HAND_DELTA, 8 / MON_HAND_DELTA);
         InitMultiMonPlaceChange(FALSE);
         sMultiMove->state++;
         break;
@@ -8424,25 +8456,25 @@ static bool8 MultiMove_TryMoveGroup(u8 dir)
         if (sMultiMove->minRow == 0)
             return FALSE;
         sMultiMove->minRow--;
-        MultiMove_InitMove(0, 1024, 6);
+        MultiMove_InitMove(0, 1024 * (6 / CURSOR_MOVE_BASE_STEPS_NO_WRAP), CURSOR_MOVE_BASE_STEPS_NO_WRAP);
         break;
     case 1: // Down
         if (sMultiMove->minRow + sMultiMove->rowsTotal >= IN_BOX_ROWS)
             return FALSE;
         sMultiMove->minRow++;
-        MultiMove_InitMove(0, -1024, 6);
+       MultiMove_InitMove(0, -1024 * (6 / CURSOR_MOVE_BASE_STEPS_NO_WRAP), CURSOR_MOVE_BASE_STEPS_NO_WRAP);
         break;
     case 2: // Left
         if (sMultiMove->minColumn == 0)
             return FALSE;
         sMultiMove->minColumn--;
-        MultiMove_InitMove(1024, 0, 6);
+        MultiMove_InitMove(1024 * (6 / CURSOR_MOVE_BASE_STEPS_NO_WRAP), 0, CURSOR_MOVE_BASE_STEPS_NO_WRAP);
         break;
     case 3: // Right
         if (sMultiMove->minColumn + sMultiMove->columnsTotal >= IN_BOX_COLUMNS)
             return FALSE;
         sMultiMove->minColumn++;
-        MultiMove_InitMove(-1024, 0, 6);
+        MultiMove_InitMove(-1024 * (6 / CURSOR_MOVE_BASE_STEPS_NO_WRAP), 0, CURSOR_MOVE_BASE_STEPS_NO_WRAP);
         break;
     }
     return TRUE;

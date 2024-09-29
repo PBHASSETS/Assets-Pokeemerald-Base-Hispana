@@ -7,6 +7,7 @@ MASKSGFXDIR := graphics/battle_anims/masks
 BATTRANSGFXDIR := graphics/battle_transitions
 TYPESGFXDIR := graphics/types
 TYPESBWGFXDIR := graphics/types_bw
+TIPOSTUTOGFXDIR := graphics/tutoriales/iconos_tipos
 TYPESBWTERAGFXDIR := graphics/types_bw/tera
 RAYQUAZAGFXDIR := graphics/rayquaza_scene
 ROULETTEGFXDIR := graphics/roulette
@@ -23,6 +24,9 @@ SPINDAGFXDIR := graphics/pokemon/spinda/spots
 
 types := none normal fight flying poison ground rock bug ghost steel mystery fire water grass electric psychic ice dragon dark fairy stellar
 contest_types := cool beauty cute smart tough
+
+tipos := ninguno normal lucha volador veneno tierra roca bicho fantasma acero misterio fuego agua planta electrico psiquico hielo dragon siniestro hada astral
+tipos_concurso := carisma belleza dulzura ingenio dureza
 
 ### Tilesets ###
 
@@ -304,9 +308,18 @@ $(TYPESGFXDIR)/move_types.gbapal: $(TYPESGFXDIR)/move_types_1.gbapal \
                                   $(TYPESGFXDIR)/move_types_3.gbapal
 	@cat $^ >$@
 
-$(TYPESBWGFXDIR)/move_types_bw.4bpp: $(types:%=$(TYPESBWGFXDIR)/%.4bpp) $(contest_types:%=$(TYPESBWGFXDIR)/contest_%.4bpp)
+$(TIPOSTUTOGFXDIR)/iconos_tipos.4bpp: $(tipos:%=$(TIPOSTUTOGFXDIR)/%.4bpp) $(tipos_concurso:%=$(TIPOSTUTOGFXDIR)/concurso_%.4bpp)
 	@cat $^ >$@
 
+$(TIPOSTUTOGFXDIR)/iconos_tipos.gbapal: $(TIPOSTUTOGFXDIR)/iconos_tipos_1.gbapal \
+                                  $(TIPOSTUTOGFXDIR)/iconos_tipos_2.gbapal \
+                                  $(TIPOSTUTOGFXDIR)/iconos_tipos_3.gbapal \
+                                  $(TIPOSTUTOGFXDIR)/iconos_tipos_4.gbapal \
+                                  $(TIPOSTUTOGFXDIR)/iconos_tipos_5.gbapal
+                                  
+$(TYPESBWGFXDIR)/move_types_bw.4bpp: $(types:%=$(TYPESBWGFXDIR)/%.4bpp) $(contest_types:%=$(TYPESBWGFXDIR)/contest_%.4bpp)
+	@cat $^ >$@
+	
 $(TYPESBWGFXDIR)/move_types_bw.gbapal: $(TYPESBWGFXDIR)/move_types_bw_1.gbapal \
                                   $(TYPESBWGFXDIR)/move_types_bw_2.gbapal \
                                   $(TYPESBWGFXDIR)/move_types_bw_3.gbapal

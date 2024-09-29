@@ -2,6 +2,7 @@
 #include "sprite.h"
 #include "main.h"
 #include "palette.h"
+#include "util.h"
 
 #define MAX_SPRITE_COPY_REQUESTS 64
 
@@ -99,9 +100,9 @@ typedef void (*AffineAnimCmdFunc)(u8 matrixNum, struct Sprite *);
 {                                           \
     .y = DISPLAY_HEIGHT,                    \
     .affineMode = ST_OAM_AFFINE_OFF,        \
-    .objMode = 0,                           \
+    .objMode = ST_OAM_OBJ_NORMAL,           \
     .mosaic = FALSE,                        \
-    .bpp = 0,                               \
+    .bpp = ST_OAM_4BPP,                     \
     .shape = SPRITE_SHAPE(8x8),             \
     .x = DISPLAY_WIDTH + 64,                \
     .matrixNum = 0,                         \
@@ -686,32 +687,6 @@ s16 AllocSpriteTiles(u16 tileCount)
         ALLOC_SPRITE_TILE(i);
 
     return start;
-}
-
-u8 SpriteTileAllocBitmapOp(u16 bit, u8 op)
-{
-    u8 index = bit / 8;
-    u8 shift = bit % 8;
-    u8 val = bit % 8;
-    u8 retVal = 0;
-
-    if (op == 0)
-    {
-        val = ~(1 << val);
-        sSpriteTileAllocBitmap[index] &= val;
-    }
-    else if (op == 1)
-    {
-        val = (1 << val);
-        sSpriteTileAllocBitmap[index] |= val;
-    }
-    else
-    {
-        retVal = 1 << shift;
-        retVal &= sSpriteTileAllocBitmap[index];
-    }
-
-    return retVal;
 }
 
 void SpriteCallbackDummy(struct Sprite *sprite)
@@ -1763,4 +1738,62 @@ static const u8 sSpanPerImage[4][4] =
 u32 GetSpanPerImage(u32 shape, u32 size)
 {
     return sSpanPerImage[shape][size];
+}
+
+u8 LoadUniqueSpritePalette(const struct SpritePalette *palette, struct BoxPokemon *boxMon)
+{
+    u8 index = IndexOfSpritePaletteTag(0xFFFF);
+
+    if (index == 0xFF)
+    {
+        return 0xFF;
+    }
+    else
+    {
+        sSpritePaletteTags[index] = palette->tag;
+        DoLoadSpritePalette(palette->data, PLTT_ID(index));
+        UniquePalette(OBJ_PLTT_ID(index), boxMon);
+        CpuCopy32(&gPlttBufferFaded[OBJ_PLTT_ID(index)], &gPlttBufferUnfaded[OBJ_PLTT_ID(index)], PLTT_SIZE_4BPP);
+        return index;
+    }
+}
+
+u8 LoadUniqueSpritePaletteByPersonality(const struct SpritePalette *palette, u16 species, u32 personality)
+{
+    u8 index = IndexOfSpritePaletteTag(0xFFFF);
+
+    if (index == 0xFF)
+    {
+        return 0xFF;
+    }
+    else
+    {
+        sSpritePaletteTags[index] = palette->tag;
+        DoLoadSpritePalette(palette->data, PLTT_ID(index));
+        UniquePaletteByPersonality(OBJ_PLTT_ID(index), species, personality);
+        CpuCopy32(&gPlttBufferFaded[OBJ_PLTT_ID(index)], &gPlttBufferUnfaded[OBJ_PLTT_ID(index)], PLTT_SIZE_4BPP);
+        return index;
+    }
+}
+
+u8 LoadEggSpritePalette(const struct SpritePalette *palette1, const struct SpritePalette *palette2)
+{
+    u8 index = IndexOfSpritePaletteTag(palette1->tag);
+
+    if (index != 0xFF)
+        return index;
+
+    index = IndexOfSpritePaletteTag(0xFFFF);
+
+    if (index == 0xFF)
+    {
+        return 0xFF;
+    }
+    else
+    {
+        sSpritePaletteTags[index] = palette1->tag;
+        DoLoadSpritePalette(palette1->data, PLTT_ID(index));
+        DoLoadSpritePalette(palette2->data, PLTT_ID(index) + 8);
+        return index;
+    }
 }
