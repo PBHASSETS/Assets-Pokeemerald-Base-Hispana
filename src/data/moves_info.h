@@ -11,6 +11,12 @@
 
 // The Gen. 4+ contest data comes from urpg's contest movedex.
 
+#if B_EXPANDED_MOVE_NAMES == TRUE
+#define HANDLE_EXPANDED_MOVE_NAME(_name, ...) COMPOUND_STRING(DEFAULT(_name, __VA_ARGS__))
+#else
+#define HANDLE_EXPANDED_MOVE_NAME(_name, ...) COMPOUND_STRING(_name)
+#endif
+
 #if B_BINDING_TURNS >= GEN_5
 #define BINDING_TURNS "4 or 5"
 #else
