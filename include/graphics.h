@@ -3147,6 +3147,7 @@ extern const u32 gBattleAnimBgPalette_Surf[];
 extern const u32 gBattleAnimBackgroundImageMuddyWater_Pal[];
 
 extern const u32 gEnemyMonShadow_Gfx[];
+extern const u32 gEnemyMonShadowsSized_Gfx[];
 
 extern const u32 gBattleAnimFogTilemap[];
 
@@ -3222,6 +3223,11 @@ extern const u32 gBattleAnimBgImage_Sandstorm[];
 extern const u32 gBattleAnimBgImage_Rainbow[];
 extern const u32 gBattleAnimBGPalette_Rainbow[];
 extern const u32 gBattleAnimBgTilemap_Rainbow[];
+
+// Pledge Effect field status - Swamp
+extern const u32 gBattleAnimBgImage_Swamp[];
+extern const u32 gBattleAnimBGPalette_Swamp[];
+extern const u32 gBattleAnimBgTilemap_Swamp[];
 
 // Pokédex Area Screen
 extern const u32 gPokedexAreaScreenAreaUnknown_Gfx[];
@@ -3412,6 +3418,11 @@ extern const u8 gMailTilemap_Retro[];
 
 extern const u8 gMonMarkingsMenu_Gfx[];
 extern const u16 gMonMarkingsMenu_Pal[];
+
+extern const u32 gBattleIcons_Gfx1[];
+extern const u32 gBattleIcons_Gfx2[];
+extern const u32 gBattleIcons_Pal1[];
+extern const u32 gBattleIcons_Pal2[];
 
 //Tutoriales
     //Iconos de tipos
