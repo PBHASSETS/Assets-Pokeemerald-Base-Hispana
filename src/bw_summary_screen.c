@@ -4908,7 +4908,7 @@ static void SetMonTypeIcons(void)
     }
     if (P_SHOW_TERA_TYPE >= GEN_9)
     {
-        SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
+        SetTypeSpritePosAndPal(summary->teraType, 36, 47, SPRITE_ARR_ID_TERA_TYPE);
     }
 }
 
