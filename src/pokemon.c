@@ -2327,10 +2327,20 @@ u32 GetBoxMonData3(struct BoxPokemon *boxMon, s32 field, u8 *data)
             retVal = boxMon->spDefenseEV;
             break;
         case MON_DATA_COOL:
+            retVal = boxMon->cool;
+            break;
         case MON_DATA_BEAUTY:
+            retVal = boxMon->beauty;
+            break;
         case MON_DATA_CUTE:
+            retVal = boxMon->cute;
+            break;
         case MON_DATA_SMART:
+            retVal = boxMon->smart;
+            break;
         case MON_DATA_TOUGH:
+            retVal = boxMon->tough;
+            break;
         case MON_DATA_SHEEN:
         case MON_DATA_POKERUS:
             retVal = 0;
@@ -2375,10 +2385,20 @@ u32 GetBoxMonData3(struct BoxPokemon *boxMon, s32 field, u8 *data)
             retVal = boxMon->abilityNum;
             break;
         case MON_DATA_COOL_RIBBON:
+            retVal = boxMon->coolRibbon;
+            break;
         case MON_DATA_BEAUTY_RIBBON:
+            retVal = boxMon->beautyRibbon;
+            break;
         case MON_DATA_CUTE_RIBBON:
+            retVal = boxMon->cuteRibbon;
+            break;
         case MON_DATA_SMART_RIBBON:
+            retVal = boxMon->smartRibbon;
+            break;
         case MON_DATA_TOUGH_RIBBON:
+            retVal = boxMon->toughRibbon;
+            break;
         case MON_DATA_CHAMPION_RIBBON:
         case MON_DATA_WINNING_RIBBON:
         case MON_DATA_VICTORY_RIBBON:
@@ -2426,7 +2446,51 @@ u32 GetBoxMonData3(struct BoxPokemon *boxMon, s32 field, u8 *data)
             }
             break;
         case MON_DATA_RIBBON_COUNT:
+            retVal = 0;
+            if (boxMon->species && !boxMon->isEgg)
+            {
+                retVal += boxMon->coolRibbon;
+                retVal += boxMon->beautyRibbon;
+                retVal += boxMon->cuteRibbon;
+                retVal += boxMon->smartRibbon;
+                retVal += boxMon->toughRibbon;
+                // retVal += boxMon->championRibbon;
+                // retVal += boxMon->winningRibbon;
+                // retVal += boxMon->victoryRibbon;
+                // retVal += boxMon->artistRibbon;
+                // retVal += boxMon->effortRibbon;
+                // retVal += boxMon->marineRibbon;
+                // retVal += boxMon->landRibbon;
+                // retVal += boxMon->skyRibbon;
+                // retVal += boxMon->countryRibbon;
+                // retVal += boxMon->nationalRibbon;
+                // retVal += boxMon->earthRibbon;
+                // retVal += boxMon->worldRibbon;
+            }
+            break;
         case MON_DATA_RIBBONS:
+            retVal = 0;
+            if (boxMon->species && !boxMon->isEgg)
+            {
+                retVal = /*boxMon->championRibbon
+                    | */(boxMon->coolRibbon)
+                    | (boxMon->beautyRibbon << 3)
+                    | (boxMon->cuteRibbon << 6)
+                    | (boxMon->smartRibbon << 0)
+                    | (boxMon->toughRibbon << 12);
+                    // | (boxMon->winningRibbon << 16)
+                    // | (boxMon->victoryRibbon << 17)
+                    // | (boxMon->artistRibbon << 18)
+                    // | (boxMon->effortRibbon << 19)
+                    // | (boxMon->marineRibbon << 20)
+                    // | (boxMon->landRibbon << 21)
+                    // | (boxMon->skyRibbon << 22)
+                    // | (boxMon->countryRibbon << 23)
+                    // | (boxMon->nationalRibbon << 24)
+                    // | (boxMon->earthRibbon << 25)
+                    // | (boxMon->worldRibbon << 26);
+            }
+            break;
         case MON_DATA_HYPER_TRAINED_HP:
         case MON_DATA_HYPER_TRAINED_ATK:
         case MON_DATA_HYPER_TRAINED_DEF:
@@ -2637,10 +2701,20 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
             SET8(boxMon->spDefenseEV);
             break;
         case MON_DATA_COOL:
+            SET8(boxMon->cool);
+            break;
         case MON_DATA_BEAUTY:
+            SET8(boxMon->beauty);
+            break;
         case MON_DATA_CUTE:
+            SET8(boxMon->cute);
+            break;
         case MON_DATA_SMART:
+            SET8(boxMon->smart);
+            break;
         case MON_DATA_TOUGH:
+            SET8(boxMon->tough);
+            break;
         case MON_DATA_SHEEN:
         case MON_DATA_POKERUS:
             break;
@@ -2686,10 +2760,20 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
             break;
         case MON_DATA_ABILITY_NUM:
         case MON_DATA_COOL_RIBBON:
+            SET8(boxMon->coolRibbon);
+            break;
         case MON_DATA_BEAUTY_RIBBON:
+            SET8(boxMon->beautyRibbon);
+            break;
         case MON_DATA_CUTE_RIBBON:
+            SET8(boxMon->cuteRibbon);
+            break;
         case MON_DATA_SMART_RIBBON:
+            SET8(boxMon->smartRibbon);
+            break;
         case MON_DATA_TOUGH_RIBBON:
+            SET8(boxMon->toughRibbon);
+            break;
         case MON_DATA_CHAMPION_RIBBON:
         case MON_DATA_WINNING_RIBBON:
         case MON_DATA_VICTORY_RIBBON:

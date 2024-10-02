@@ -152,6 +152,17 @@ struct BoxPokemon
     u32 pp4:7;
     u32 isEgg:1;
     u32 language:3;
+	u8 cool;
+    u8 beauty;
+    u8 cute;
+    u8 smart;
+    u8 tough;
+	u32 coolRibbon:3;     // Stores the highest contest rank achieved in the Cool category.
+    u32 beautyRibbon:3;   // Stores the highest contest rank achieved in the Beauty category.
+    u32 cuteRibbon:3;     // Stores the highest contest rank achieved in the Cute category.
+    u32 smartRibbon:3;    // Stores the highest contest rank achieved in the Smart category.
+    u32 toughRibbon:3;    // Stores the highest contest rank achieved in the Tough category.
+    // u8 sheen;
 
     u8 blockBoxRS:1; // Unused, but Pokémon Box Ruby & Sapphire will refuse to deposit a Pokémon with this flag set.
     u8 daysSinceFormChange:3; // 7 days.
