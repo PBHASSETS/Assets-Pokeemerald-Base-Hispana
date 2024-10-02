@@ -111,7 +111,7 @@ static const u8 *const sCompatibilityMessages[] =
     gDaycareText_PlayOther
 };
 
-static const u8 sJapaneseEggNickname[] = _("タマゴ"); // "tamago" ("egg" in Japanese)
+static const u8 sHuevoNickname[] = _("Huevo");
 
 u8 *GetMonNicknameVanilla(struct Pokemon *mon, u8 *dest)
 {
@@ -1091,9 +1091,9 @@ void CreateEgg(struct Pokemon *mon, u16 species, bool8 setHotSpringsLocation)
     CreateMon(mon, species, EGG_HATCH_LEVEL, USE_RANDOM_IVS, FALSE, 0, OT_ID_PLAYER_ID, 0);
     metLevel = 0;
     ball = ITEM_POKE_BALL;
-    language = LANGUAGE_JAPANESE;
+    language = GAME_LANGUAGE;
     SetMonData(mon, MON_DATA_POKEBALL, &ball);
-    SetMonData(mon, MON_DATA_NICKNAME, sJapaneseEggNickname);
+    SetMonData(mon, MON_DATA_NICKNAME, sHuevoNickname);
     SetMonData(mon, MON_DATA_FRIENDSHIP, &gSpeciesInfo[species].eggCycles);
     SetMonData(mon, MON_DATA_MET_LEVEL, &metLevel);
     SetMonData(mon, MON_DATA_LANGUAGE, &language);
@@ -1118,9 +1118,9 @@ static void SetInitialEggData(struct Pokemon *mon, u16 species, struct DayCare *
     CreateMon(mon, species, EGG_HATCH_LEVEL, USE_RANDOM_IVS, TRUE, personality, OT_ID_PLAYER_ID, 0);
     metLevel = 0;
     ball = ITEM_POKE_BALL;
-    language = LANGUAGE_JAPANESE;
+    language = GAME_LANGUAGE;
+    SetMonData(mon, MON_DATA_NICKNAME, sHuevoNickname);
     SetMonData(mon, MON_DATA_POKEBALL, &ball);
-    SetMonData(mon, MON_DATA_NICKNAME, sJapaneseEggNickname);
     SetMonData(mon, MON_DATA_FRIENDSHIP, &gSpeciesInfo[species].eggCycles);
     SetMonData(mon, MON_DATA_MET_LEVEL, &metLevel);
     SetMonData(mon, MON_DATA_LANGUAGE, &language);

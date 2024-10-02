@@ -1644,7 +1644,7 @@ struct Pokemon *GetFirstLiveMon(void)
     u32 i;
     for (i = 0; i < PARTY_SIZE; i++)
     {
-        if (gPlayerParty[i].hp > 0 && !(gPlayerParty[i].box.isEgg || gPlayerParty[i].box.isBadEgg))
+        if (gPlayerParty[i].hp > 0 && !gPlayerParty[i].box.isEgg)
             return &gPlayerParty[i];
     }
     return NULL;
