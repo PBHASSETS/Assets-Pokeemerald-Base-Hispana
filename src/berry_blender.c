@@ -229,7 +229,6 @@ static void RestoreBgCoords(void);
 static void ProcessLinkPlayerCmds(void);
 static void CB2_EndBlenderGame(void);
 static bool8 PrintBlendingRanking(void);
-static bool8 PrintBlendingResults(void);
 static void CB2_CheckPlayAgainLocal(void);
 static void CB2_CheckPlayAgainLink(void);
 static void UpdateProgressBar(u16, u16);
@@ -2650,15 +2649,6 @@ static void CB2_EndBlenderGame(void)
             sBerryBlender->gameEndState++;
         break;
     case 6:
-        if (PrintBlendingResults())
-        {
-            if (gInGameOpponentsNo == 0)
-                IncrementGameStat(GAME_STAT_POKEBLOCKS_WITH_FRIENDS);
-            else
-                IncrementGameStat(GAME_STAT_POKEBLOCKS);
-
-            sBerryBlender->gameEndState++;
-        }
         break;
     case 7:
         if (PrintMessage(&sBerryBlender->textState, sText_WouldLikeToBlendAnotherBerry, GetPlayerTextSpeedDelay()))
@@ -3446,149 +3436,6 @@ static void SpriteCB_PlayerArrow(struct Sprite *sprite)
    sprite->y2 = -(sBerryBlender->bg_Y);
 }
 
-static void TryUpdateBerryBlenderRecord(void)
-{
-    if (gSaveBlock1Ptr->berryBlenderRecords[sBerryBlender->numPlayers - 2] < sBerryBlender->maxRPM)
-        gSaveBlock1Ptr->berryBlenderRecords[sBerryBlender->numPlayers - 2] = sBerryBlender->maxRPM;
-}
-
-static bool8 PrintBlendingResults(void)
-{
-    u16 i;
-    s32 xPos, yPos;
-
-    struct Pokeblock pokeblock;
-    u8 flavors[FLAVOR_COUNT + 1];
-    u8 text[40];
-    u16 UNUSED berryIds[4];
-
-    switch (sBerryBlender->mainState)
-    {
-    case 0:
-        sBerryBlender->mainState++;
-        sBerryBlender->framesToWait = 17;
-        break;
-    case 1:
-        sBerryBlender->framesToWait -= 10;
-        if (sBerryBlender->framesToWait < 0)
-        {
-            sBerryBlender->framesToWait = 0;
-            sBerryBlender->mainState++;
-        }
-        break;
-    case 2:
-        if (++sBerryBlender->framesToWait > 20)
-        {
-            for (i = 0; i < NUM_SCORE_TYPES; i++)
-                DestroySprite(&gSprites[sBerryBlender->scoreIconIds[i]]);
-
-            sBerryBlender->framesToWait = 0;
-            sBerryBlender->mainState++;
-        }
-        break;
-    case 3:
-        {
-            u16 minutes, seconds;
-            u8 *txtPtr;
-
-            xPos = GetStringCenterAlignXOffset(FONT_NORMAL, sText_BlendingResults, 0xA8);
-            Blender_AddTextPrinter(WIN_RESULTS, sText_BlendingResults, xPos, 1, TEXT_SKIP_DRAW, 0);
-
-            if (sBerryBlender->numPlayers == BLENDER_MAX_PLAYERS)
-                yPos = 17;
-            else
-                yPos = 21;
-
-            for (i = 0; i < sBerryBlender->numPlayers; yPos += 16, i++)
-            {
-                u8 place = sBerryBlender->playerPlaces[i];
-
-                ConvertIntToDecimalStringN(sBerryBlender->stringVar, i + 1, STR_CONV_MODE_LEFT_ALIGN, 1);
-                StringAppend(sBerryBlender->stringVar, sText_Dot);
-                StringAppend(sBerryBlender->stringVar, gText_Space);
-                StringAppend(sBerryBlender->stringVar, gLinkPlayers[place].name);
-                Blender_AddTextPrinter(WIN_RESULTS, sBerryBlender->stringVar, 8, yPos, TEXT_SKIP_DRAW, 3);
-
-                StringCopy(sBerryBlender->stringVar, sBerryBlender->blendedBerries[place].name);
-                ConvertInternationalString(sBerryBlender->stringVar, gLinkPlayers[place].language);
-                StringAppend(sBerryBlender->stringVar, sText_SpaceBerry);
-                Blender_AddTextPrinter(WIN_RESULTS, sBerryBlender->stringVar, 0x54, yPos, TEXT_SKIP_DRAW, 3);
-            }
-
-            Blender_AddTextPrinter(WIN_RESULTS, sText_MaximumSpeed, 0, 0x51, TEXT_SKIP_DRAW, 3);
-            ConvertIntToDecimalStringN(sBerryBlender->stringVar, sBerryBlender->maxRPM / 100, STR_CONV_MODE_RIGHT_ALIGN, 3);
-            StringAppend(sBerryBlender->stringVar, sText_Dot);
-
-            ConvertIntToDecimalStringN(text, sBerryBlender->maxRPM % 100, STR_CONV_MODE_LEADING_ZEROS, 2);
-            StringAppend(sBerryBlender->stringVar, text);
-            StringAppend(sBerryBlender->stringVar, sText_RPM);
-
-            xPos = GetStringRightAlignXOffset(FONT_NORMAL, sBerryBlender->stringVar, 0xA8);
-            Blender_AddTextPrinter(WIN_RESULTS, sBerryBlender->stringVar, xPos, 0x51, TEXT_SKIP_DRAW, 3);
-            Blender_AddTextPrinter(WIN_RESULTS, sText_Time, 0, 0x61, TEXT_SKIP_DRAW, 3);
-
-            seconds = (sBerryBlender->gameFrameTime / 60) % 60;
-            minutes = (sBerryBlender->gameFrameTime / (60 * 60));
-
-            ConvertIntToDecimalStringN(sBerryBlender->stringVar, minutes, STR_CONV_MODE_LEADING_ZEROS, 2);
-            txtPtr = StringAppend(sBerryBlender->stringVar, sText_Min);
-
-            ConvertIntToDecimalStringN(txtPtr, seconds, STR_CONV_MODE_LEADING_ZEROS, 2);
-            StringAppend(sBerryBlender->stringVar, sText_Sec);
-
-            xPos = GetStringRightAlignXOffset(FONT_NORMAL, sBerryBlender->stringVar, 0xA8);
-            Blender_AddTextPrinter(WIN_RESULTS, sBerryBlender->stringVar, xPos, 0x61, TEXT_SKIP_DRAW, 3);
-
-            sBerryBlender->framesToWait = 0;
-            sBerryBlender->mainState++;
-
-            CopyWindowToVram(WIN_RESULTS, COPYWIN_GFX);
-        }
-        break;
-    case 4:
-        if (JOY_NEW(A_BUTTON))
-            sBerryBlender->mainState++;
-        break;
-    case 5:
-        ClearStdWindowAndFrameToTransparent(WIN_RESULTS, TRUE);
-
-        for (i = 0; i < BLENDER_MAX_PLAYERS; i++)
-        {
-            if (sBerryBlender->chosenItemId[i] != 0)
-                berryIds[i] = sBerryBlender->chosenItemId[i] - FIRST_BERRY_INDEX;
-            if (sBerryBlender->arrowIdToPlayerId[i] != NO_PLAYER)
-            {
-                PutWindowTilemap(i);
-                CopyWindowToVram(i, COPYWIN_FULL);
-            }
-        }
-
-        Debug_SetStageVars();
-        CalculatePokeblock(sBerryBlender->blendedBerries, &pokeblock, sBerryBlender->numPlayers, flavors, sBerryBlender->maxRPM);
-        PrintMadePokeblockString(&pokeblock, sBerryBlender->stringVar);
-        TryAddContestLinkTvShow(&pokeblock, &sBerryBlender->tvBlender);
-
-        CreateTask(Task_PlayPokeblockFanfare, 6);
-        IncrementDailyBerryBlender();
-
-        RemoveBagItem(gSpecialVar_ItemId, 1);
-        AddPokeblock(&pokeblock);
-
-        sBerryBlender->textState = 0;
-        sBerryBlender->mainState++;
-        break;
-    case 6:
-        if (PrintMessage(&sBerryBlender->textState, sBerryBlender->stringVar, GetPlayerTextSpeedDelay()))
-        {
-            TryUpdateBerryBlenderRecord();
-            return TRUE;
-        }
-        break;
-    }
-
-    return FALSE;
-}
-
 static void PrintMadePokeblockString(struct Pokeblock *pokeblock, u8 *dst)
 {
     u8 text[12];
@@ -3750,42 +3597,6 @@ static bool8 PrintBlendingRanking(void)
     }
 
     return FALSE;
-}
-
-void ShowBerryBlenderRecordWindow(void)
-{
-    s32 i;
-    s32 xPos, yPos;
-    struct WindowTemplate winTemplate;
-    u8 text[32];
-
-    winTemplate = sBlenderRecordWindowTemplate;
-    gRecordsWindowId = AddWindow(&winTemplate);
-    DrawStdWindowFrame(gRecordsWindowId, FALSE);
-    FillWindowPixelBuffer(gRecordsWindowId, PIXEL_FILL(1));
-
-    xPos = GetStringCenterAlignXOffset(FONT_NORMAL, gText_BlenderMaxSpeedRecord, 144);
-    AddTextPrinterParameterized(gRecordsWindowId, FONT_NORMAL, gText_BlenderMaxSpeedRecord, xPos, 1, 0, NULL);
-    AddTextPrinterParameterized(gRecordsWindowId, FONT_NORMAL, gText_234Players, 4, 41, 0, NULL);
-
-    for (i = 0, yPos = 41; i < NUM_SCORE_TYPES; i++)
-    {
-        u8 *txtPtr;
-        u32 record;
-
-        record = gSaveBlock1Ptr->berryBlenderRecords[i];
-
-        txtPtr = ConvertIntToDecimalStringN(text, record / 100, STR_CONV_MODE_RIGHT_ALIGN, 3);
-        txtPtr = StringAppend(txtPtr, sText_Dot);
-        txtPtr = ConvertIntToDecimalStringN(txtPtr, record % 100, STR_CONV_MODE_LEADING_ZEROS, 2);
-        txtPtr = StringAppend(txtPtr, sText_RPM);
-
-        xPos = GetStringRightAlignXOffset(FONT_NORMAL, text, 140);
-        AddTextPrinterParameterized(gRecordsWindowId, FONT_NORMAL, text, xPos, yPos + (i * 16), 0, NULL);
-    }
-
-    PutWindowTilemap(gRecordsWindowId);
-    CopyWindowToVram(gRecordsWindowId, COPYWIN_FULL);
 }
 
 static void Task_PlayPokeblockFanfare(u8 taskId)

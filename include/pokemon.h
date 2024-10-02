@@ -163,7 +163,6 @@ struct BoxPokemon
     u32 abilityNum:2;
     u32 compressedStatus:4;
     u32 hpLost:14; // 16383 HP.
-    u32 shinyModifier:1;
 };
 
 struct Pokemon

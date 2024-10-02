@@ -598,7 +598,6 @@ static void Task_ReleaseMon(u8);
 static void Task_ReshowPokeStorage(u8);
 static void Task_PokeStorageMain(u8);
 static void Task_JumpBox(u8);
-static void Task_HandleWallpapers(u8);
 static void Task_NameBox(u8);
 static void Task_PrintCantStoreMail(u8);
 static void Task_HandleMovingMonFromParty(u8);
@@ -793,17 +792,6 @@ static void SpriteCB_InstantOutgoingBoxTitle(struct Sprite *);
 static void CycleBoxTitleColor(void);
 static s16 GetBoxTitleBaseX(const u8 *);
 
-// Wallpaper
-static void SetWallpaperForCurrentBox(u8);
-static bool8 DoWallpaperGfxChange(void);
-static void LoadWallpaperGfx(u8, s8);
-static bool32 WaitForWallpaperGfxLoad(void);
-static void DrawWallpaper(const void *, s8, u8);
-static void TrimOldWallpaper(void *);
-static void AddWallpaperSetsMenu(void);
-static void AddWallpapersMenu(u8);
-static u8 GetBoxWallpaper(u8);
-static void SetBoxWallpaper(u8, u8);
 
 // General box
 static void CreateInitBoxTask(u8);
@@ -1637,11 +1625,6 @@ void ResetPokemonStorageSystem(void)
         u8 *dest = StringCopy(GetBoxNamePtr(boxId), gText_Box);
         ConvertIntToDecimalStringN(dest, boxId + 1, STR_CONV_MODE_LEFT_ALIGN, 2);
     }
-
-    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
-        SetBoxWallpaper(boxId, boxId % (MAX_DEFAULT_WALLPAPER + 1));
-
-    ResetWaldaWallpaper();
 }
 
 
@@ -3297,100 +3280,12 @@ static void Task_HandleBoxOptions(u8 taskId)
             SetPokeStorageTask(Task_NameBox);
             break;
         case MENU_WALLPAPER:
-            PlaySE(SE_SELECT);
-            ClearBottomWindow();
-            SetPokeStorageTask(Task_HandleWallpapers);
             break;
         case MENU_JUMP:
             PlaySE(SE_SELECT);
             ClearBottomWindow();
             SetPokeStorageTask(Task_JumpBox);
             break;
-        }
-        break;
-    }
-}
-
-static void Task_HandleWallpapers(u8 taskId)
-{
-    switch (sStorage->state)
-    {
-    case 0:
-        AddWallpaperSetsMenu();
-        PrintMessage(MSG_PICK_A_THEME);
-        sStorage->state++;
-        break;
-    case 1:
-        if (!IsMenuLoading())
-             sStorage->state++;
-        break;
-    case 2:
-        sStorage->wallpaperSetId = HandleMenuInput();
-        switch (sStorage->wallpaperSetId)
-        {
-        case MENU_B_PRESSED:
-            AnimateBoxScrollArrows(TRUE);
-            ClearBottomWindow();
-            SetPokeStorageTask(Task_PokeStorageMain);
-            break;
-        case MENU_SCENERY_1:
-        case MENU_SCENERY_2:
-        case MENU_SCENERY_3:
-        case MENU_ETCETERA:
-            PlaySE(SE_SELECT);
-            RemoveMenu();
-            sStorage->wallpaperSetId -= MENU_WALLPAPER_SETS_START;
-            sStorage->state++;
-            break;
-        case MENU_FRIENDS:
-            // New wallpaper from Walda.
-            PlaySE(SE_SELECT);
-            sStorage->wallpaperId = WALLPAPER_FRIENDS;
-            RemoveMenu();
-            ClearBottomWindow();
-            sStorage->state = 6;
-            break;
-        }
-        break;
-    case 3:
-        if (!IsDma3ManagerBusyWithBgCopy())
-        {
-            AddWallpapersMenu(sStorage->wallpaperSetId);
-            PrintMessage(MSG_PICK_A_WALLPAPER);
-            sStorage->state++;
-        }
-        break;
-    case 4:
-        sStorage->wallpaperId = HandleMenuInput();
-        switch (sStorage->wallpaperId)
-        {
-        case MENU_NOTHING_CHOSEN:
-            break;
-        case MENU_B_PRESSED:
-            ClearBottomWindow();
-            sStorage->state = 0;
-            break;
-        default:
-            PlaySE(SE_SELECT);
-            ClearBottomWindow();
-            sStorage->wallpaperId -= MENU_WALLPAPERS_START;
-            SetWallpaperForCurrentBox(sStorage->wallpaperId);
-            sStorage->state++;
-            break;
-        }
-        break;
-    case 5:
-        if (!DoWallpaperGfxChange())
-        {
-            AnimateBoxScrollArrows(TRUE);
-            SetPokeStorageTask(Task_PokeStorageMain);
-        }
-        break;
-    case 6:
-        if (!IsDma3ManagerBusyWithBgCopy())
-        {
-            SetWallpaperForCurrentBox(sStorage->wallpaperId);
-            sStorage->state = 5;
         }
         break;
     }
@@ -5188,30 +5083,14 @@ static void Task_InitBox(u8 taskId)
     switch (task->tState)
     {
     case 0:
-        sStorage->wallpaperOffset = 0;
-        sStorage->bg2_X = 0;
-        task->tDmaIdx = RequestDma3Fill(0, sStorage->wallpaperBgTilemapBuffer, sizeof(sStorage->wallpaperBgTilemapBuffer), 1);
-        break;
-    case 1:
-        if (CheckForSpaceForDma3Request(task->tDmaIdx) == -1)
-            return;
-
-        SetBgTilemapBuffer(2, sStorage->wallpaperBgTilemapBuffer);
         ShowBg(2);
         break;
-    case 2:
-        LoadWallpaperGfx(task->tBoxId, 0);
-        break;
-    case 3:
-        if (!WaitForWallpaperGfxLoad())
-            return;
-
+    case 1:
         InitBoxTitle(task->tBoxId);
-        CreateBoxScrollArrows();
         InitBoxMonSprites(task->tBoxId);
         SetGpuReg(REG_OFFSET_BG2CNT, BGCNT_PRIORITY(2) | BGCNT_CHARBASE(2) | BGCNT_SCREENBASE(27) | BGCNT_TXT512x256);
         break;
-    case 4:
+    case 2:
         DestroyTask(taskId);
         break;
     default:
@@ -5245,45 +5124,18 @@ static bool8 ScrollToBox(void)
     switch (sStorage->scrollState)
     {
     case 0:
-        LoadWallpaperGfx(sStorage->scrollToBoxId, sStorage->scrollDirection);
-        sStorage->scrollState++;
-    case 1:
-        if (!WaitForWallpaperGfxLoad())
-            return TRUE;
-
         InitBoxMonIconScroll(sStorage->scrollToBoxId, sStorage->scrollDirection);
-        if (PBH_ALMACENAMIENTO_RAPIDO)
-            CreateInstantIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
-        else
-            CreateIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
-        StartBoxScrollArrowsSlide(sStorage->scrollDirection);
+        CreateIncomingBoxTitle(sStorage->scrollToBoxId, sStorage->scrollDirection);
         break;
-    case 2:
-        if (PBH_ALMACENAMIENTO_RAPIDO)
+    case 1:
+        iconsScrolling = UpdateBoxMonIconScroll();
+        if (sStorage->scrollTimer != 0)
         {
-            if (!InstantBoxMonIconScroll(sStorage->scrollToBoxId))
-            {
-                sStorage->scrollTimer = 0;
-                CycleBoxTitleSprites();
-                StopBoxScrollArrowsSlide();
-                return FALSE;
-            }
-            return TRUE;
+            if (--sStorage->scrollTimer != 0)
+                return TRUE;
+            CycleBoxTitleSprites();
         }
-        else
-        {
-            iconsScrolling = UpdateBoxMonIconScroll();
-            if (sStorage->scrollTimer != 0)
-            {
-                sStorage->bg2_X += sStorage->scrollSpeed;
-                if (--sStorage->scrollTimer != 0)
-                    return TRUE;
-                CycleBoxTitleSprites();
-                StopBoxScrollArrowsSlide();
-            }
-            return iconsScrolling;
-        }
-
+        return iconsScrolling;
     }
 
     sStorage->scrollState++;
@@ -5305,160 +5157,6 @@ static s8 DetermineBoxScrollDirection(u8 boxId)
     return (i < TOTAL_BOXES_COUNT / 2) ? 1 : -1;
 }
 
-
-//------------------------------------------------------------------------------
-//  SECTION: Wallpaper gfx
-//------------------------------------------------------------------------------
-
-
-static void SetWallpaperForCurrentBox(u8 wallpaperId)
-{
-    u8 boxId = StorageGetCurrentBox();
-    SetBoxWallpaper(boxId, wallpaperId);
-    sStorage->wallpaperChangeState = 0;
-}
-
-static bool8 DoWallpaperGfxChange(void)
-{
-    switch (sStorage->wallpaperChangeState)
-    {
-    case 0:
-        BeginNormalPaletteFade(sStorage->wallpaperPalBits, 1, 0, 16, RGB_WHITEALPHA);
-        sStorage->wallpaperChangeState++;
-        break;
-    case 1:
-        if (!UpdatePaletteFade())
-        {
-            u8 curBox = StorageGetCurrentBox();
-            LoadWallpaperGfx(curBox, 0);
-            sStorage->wallpaperChangeState++;
-        }
-        break;
-    case 2:
-        if (WaitForWallpaperGfxLoad() == TRUE)
-        {
-            CycleBoxTitleColor();
-            BeginNormalPaletteFade(sStorage->wallpaperPalBits, 1, 16, 0, RGB_WHITEALPHA);
-            sStorage->wallpaperChangeState++;
-        }
-        break;
-    case 3:
-        if (!UpdatePaletteFade())
-            sStorage->wallpaperChangeState++;
-        break;
-    case 4:
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-static void LoadWallpaperGfx(u8 boxId, s8 direction)
-{
-    u8 wallpaperId;
-    const struct Wallpaper *wallpaper;
-    void *iconGfx;
-    u32 tilesSize, iconSize;
-
-    sStorage->wallpaperLoadBoxId = boxId;
-    sStorage->wallpaperLoadDir = direction;
-    if (sStorage->wallpaperLoadDir != 0)
-    {
-        sStorage->wallpaperOffset = (sStorage->wallpaperOffset == 0);
-        TrimOldWallpaper(sStorage->wallpaperBgTilemapBuffer);
-    }
-
-    wallpaperId = GetBoxWallpaper(sStorage->wallpaperLoadBoxId);
-    if (wallpaperId != WALLPAPER_FRIENDS)
-    {
-        wallpaper = &sWallpapers[wallpaperId];
-        LZ77UnCompWram(wallpaper->tilemap, sStorage->wallpaperTilemap);
-        DrawWallpaper(sStorage->wallpaperTilemap, sStorage->wallpaperLoadDir, sStorage->wallpaperOffset);
-
-        if (sStorage->wallpaperLoadDir != 0)
-            LoadPalette(wallpaper->palettes, BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2), 2 * PLTT_SIZE_4BPP);
-        else
-            CpuFastCopy(wallpaper->palettes, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
-
-        sStorage->wallpaperTiles = malloc_and_decompress(wallpaper->tiles, &tilesSize);
-        LoadBgTiles(2, sStorage->wallpaperTiles, tilesSize, sStorage->wallpaperOffset << 8);
-    }
-    else
-    {
-        wallpaper = &sWaldaWallpapers[GetWaldaWallpaperPatternId()];
-        LZ77UnCompWram(wallpaper->tilemap, sStorage->wallpaperTilemap);
-        DrawWallpaper(sStorage->wallpaperTilemap, sStorage->wallpaperLoadDir, sStorage->wallpaperOffset);
-
-        CpuFastCopy(wallpaper->palettes, sStorage->wallpaperTilemap, 64);
-        CpuCopy16(GetWaldaWallpaperColorsPtr(), &sStorage->wallpaperTilemap[1], 4);
-        CpuCopy16(GetWaldaWallpaperColorsPtr(), &sStorage->wallpaperTilemap[17], 4);
-
-        if (sStorage->wallpaperLoadDir != 0)
-            LoadPalette(sStorage->wallpaperTilemap, BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2), 2 * PLTT_SIZE_4BPP);
-        else
-            CpuFastCopy(sStorage->wallpaperTilemap, &gPlttBufferUnfaded[BG_PLTT_ID(4) + BG_PLTT_ID(sStorage->wallpaperOffset * 2)], 2 * PLTT_SIZE_4BPP);
-
-        sStorage->wallpaperTiles = malloc_and_decompress(wallpaper->tiles, &tilesSize);
-        iconGfx = malloc_and_decompress(sWaldaWallpaperIcons[GetWaldaWallpaperIconId()], &iconSize);
-        CpuFastCopy(iconGfx, sStorage->wallpaperTiles + 2048, iconSize);
-        Free(iconGfx);
-        LoadBgTiles(2, sStorage->wallpaperTiles, tilesSize, sStorage->wallpaperOffset << 8);
-    }
-
-    CopyBgTilemapBufferToVram(2);
-}
-
-static bool32 WaitForWallpaperGfxLoad(void)
-{
-    if (IsDma3ManagerBusyWithBgCopy())
-        return FALSE;
-
-    TRY_FREE_AND_SET_NULL(sStorage->wallpaperTiles);
-
-    return TRUE;
-}
-
-static void DrawWallpaper(const void *tilemap, s8 direction, u8 offset)
-{
-    s16 tileOffset = offset * 256;
-    s16 paletteNum = (offset * 2) + 3;
-    s16 x = ((sStorage->bg2_X / 8 + 10) + (direction * 24)) & 0x3F;
-
-    CopyRectToBgTilemapBufferRect(2, tilemap, 0, 0, 20, 18, x, 2, 20, 18, 17, tileOffset, paletteNum);
-
-    if (direction == 0)
-        return;
-    if (direction > 0)
-        x += 20;
-    else
-        x -= 4;
-
-    FillBgTilemapBufferRect(2, 0, x, 2, 4, 0x12, 17);
-}
-
-static void TrimOldWallpaper(void *tilemap)
-{
-    u16 i;
-    u16 *dest = tilemap;
-    s16 r3 = ((sStorage->bg2_X / 8) + 30) & 0x3F;
-
-    if (r3 <= 31)
-        dest += r3 + 0x260;
-    else
-        dest += r3 + 0x640;
-
-    for (i = 0; i < 0x2C; i++)
-    {
-        *dest++ = 0;
-        r3 = (r3 + 1) & 0x3F;
-        if (r3 == 0)
-            dest -= 0x420;
-        if (r3 == 0x20)
-            dest += 0x3e0;
-    }
-}
-
-
 //------------------------------------------------------------------------------
 //  SECTION: Box Title
 //------------------------------------------------------------------------------
@@ -5470,30 +5168,10 @@ static void InitBoxTitle(u8 boxId)
     s16 x;
     u16 i;
 
-    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 0x200, GFXTAG_BOX_TITLE};
-    struct SpritePalette palettes[] = {
-        {sStorage->boxTitlePal, PALTAG_BOX_TITLE},
-        {}
-    };
-
-    u16 wallpaperId = GetBoxWallpaper(boxId);
-
-    sStorage->boxTitlePal[14] = sBoxTitleColors[wallpaperId][0]; // Shadow color
-    sStorage->boxTitlePal[15] = sBoxTitleColors[wallpaperId][1]; // Text Color
-    LoadSpritePalettes(palettes);
-    sStorage->wallpaperPalBits = 0x3f0;
+    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 512, GFXTAG_BOX_TITLE};
 
     tagIndex = IndexOfSpritePaletteTag(PALTAG_BOX_TITLE);
     sStorage->boxTitlePalOffset = OBJ_PLTT_ID(tagIndex) + 14;
-    sStorage->wallpaperPalBits |= (1 << 16) << tagIndex;
-
-    // The below seems intended to have separately tracked
-    // the incoming wallpaper title's palette, but as they now
-    // share a palette tag, all colors (and fields in some cases)
-    // this is redundant along with the use of boxTitleAltPalOffset
-    tagIndex = IndexOfSpritePaletteTag(PALTAG_BOX_TITLE);
-    sStorage->boxTitleAltPalOffset = OBJ_PLTT_ID(tagIndex) + 14;
-    sStorage->wallpaperPalBits |= (1 << 16) << tagIndex;
 
     StringCopyPadded(sStorage->boxTitleText, GetBoxNamePtr(boxId), 0, BOX_NAME_LENGTH);
     DrawTextWindowAndBufferTiles(sStorage->boxTitleText, sStorage->boxTitleTiles, 0, 0, 2);
@@ -5520,30 +5198,25 @@ static void InitBoxTitle(u8 boxId)
 
 static void CreateIncomingBoxTitle(u8 boxId, s8 direction)
 {
-    u16 palOffset;
     s16 x, adjustedX;
     u16 i;
-    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 0x200, GFXTAG_BOX_TITLE};
+    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 512, GFXTAG_BOX_TITLE};
     struct SpriteTemplate template = sSpriteTemplate_BoxTitle;
 
     sStorage->boxTitleCycleId = (sStorage->boxTitleCycleId == 0);
     if (sStorage->boxTitleCycleId == 0)
     {
         spriteSheet.tag = GFXTAG_BOX_TITLE;
-        palOffset = sStorage->boxTitlePalOffset;
     }
     else
     {
         spriteSheet.tag = GFXTAG_BOX_TITLE_ALT;
-        palOffset = sStorage->boxTitlePalOffset;
         template.tileTag = GFXTAG_BOX_TITLE_ALT;
-        template.paletteTag = PALTAG_BOX_TITLE;
     }
 
     StringCopyPadded(sStorage->boxTitleText, GetBoxNamePtr(boxId), 0, BOX_NAME_LENGTH);
     DrawTextWindowAndBufferTiles(sStorage->boxTitleText, sStorage->boxTitleTiles, 0, 0, 2);
     LoadSpriteSheet(&spriteSheet);
-    LoadPalette(sBoxTitleColors[GetBoxWallpaper(boxId)], palOffset, sizeof(sBoxTitleColors[0]));
     x = GetBoxTitleBaseX(GetBoxNamePtr(boxId));
     adjustedX = x;
     adjustedX += direction * 192;
@@ -5554,61 +5227,15 @@ static void CreateIncomingBoxTitle(u8 boxId, s8 direction)
         u8 spriteId = CreateSprite(&template, i * 32 + adjustedX, 28, 24);
 
         sStorage->nextBoxTitleSprites[i] = &gSprites[spriteId];
-        sStorage->nextBoxTitleSprites[i]->sSpeed = BOX_SCROLL_SPEED(-direction);
+        sStorage->nextBoxTitleSprites[i]->sSpeed = (-direction) * 6;
         sStorage->nextBoxTitleSprites[i]->sIncomingX = i * 32 + x;
-        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 1;
+        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 0;
         sStorage->nextBoxTitleSprites[i]->callback = SpriteCB_IncomingBoxTitle;
         StartSpriteAnim(sStorage->nextBoxTitleSprites[i], i);
 
-        sStorage->curBoxTitleSprites[i]->sSpeed = BOX_SCROLL_SPEED(-direction);
+        sStorage->curBoxTitleSprites[i]->sSpeed = (-direction) * 6;
         sStorage->curBoxTitleSprites[i]->sOutgoingDelay = 1;
         sStorage->curBoxTitleSprites[i]->callback = SpriteCB_OutgoingBoxTitle;
-    }
-}
-
-static void CreateInstantIncomingBoxTitle(u8 boxId, s8 direction)
-{
-    u16 palOffset;
-    s16 x, adjustedX;
-    u16 i;
-    struct SpriteSheet spriteSheet = {sStorage->boxTitleTiles, 512, GFXTAG_BOX_TITLE};
-    struct SpriteTemplate template = sSpriteTemplate_BoxTitle;
-
-    sStorage->boxTitleCycleId = (sStorage->boxTitleCycleId == 0);
-    if (sStorage->boxTitleCycleId == 0)
-    {
-        spriteSheet.tag = GFXTAG_BOX_TITLE;
-        palOffset = sStorage->boxTitlePalOffset;
-    }
-    else
-    {
-        spriteSheet.tag = GFXTAG_BOX_TITLE_ALT;
-        palOffset = sStorage->boxTitlePalOffset;
-        template.tileTag = GFXTAG_BOX_TITLE_ALT;
-        template.paletteTag = PALTAG_BOX_TITLE;
-    }
-
-    StringCopyPadded(sStorage->boxTitleText, GetBoxNamePtr(boxId), 0, BOX_NAME_LENGTH);
-    DrawTextWindowAndBufferTiles(sStorage->boxTitleText, sStorage->boxTitleTiles, 0, 0, 2);
-    LoadSpriteSheet(&spriteSheet);
-    LoadPalette(sBoxTitleColors[GetBoxWallpaper(boxId)], palOffset, sizeof(sBoxTitleColors[0]));
-    x = GetBoxTitleBaseX(GetBoxNamePtr(boxId));
-    adjustedX = x;
-    adjustedX += direction * 192;
-
-    // Title is split across two sprites
-    for (i = 0; i < 2; i++)
-    {
-        u8 spriteId = CreateSprite(&template, i * 32 + x, 28, 24);
-
-        sStorage->nextBoxTitleSprites[i] = &gSprites[spriteId];
-        sStorage->nextBoxTitleSprites[i]->sIncomingDelay = 1;
-        sStorage->nextBoxTitleSprites[i]->callback = SpriteCB_InstantIncomingBoxTitle;
-        sStorage->nextBoxTitleSprites[i]->invisible = TRUE;
-        StartSpriteAnim(sStorage->nextBoxTitleSprites[i], i);
-
-        sStorage->curBoxTitleSprites[i]->sOutgoingDelay = 1;
-        sStorage->curBoxTitleSprites[i]->callback = SpriteCB_InstantOutgoingBoxTitle;
     }
 }
 
@@ -5674,16 +5301,6 @@ static void SpriteCB_InstantOutgoingBoxTitle(struct Sprite *sprite)
 #undef sIncomingDelay
 #undef sOutgoingDelay
 #undef sOutgoingX
-
-static void CycleBoxTitleColor(void)
-{
-    u8 boxId = StorageGetCurrentBox();
-    u8 wallpaperId = GetBoxWallpaper(boxId);
-    if (sStorage->boxTitleCycleId == 0)
-        CpuCopy16(sBoxTitleColors[wallpaperId], &gPlttBufferUnfaded[sStorage->boxTitlePalOffset], PLTT_SIZEOF(2));
-    else
-        CpuCopy16(sBoxTitleColors[wallpaperId], &gPlttBufferUnfaded[sStorage->boxTitleAltPalOffset], PLTT_SIZEOF(2));
-}
 
 static s16 GetBoxTitleBaseX(const u8 *string)
 {
@@ -9627,20 +9244,6 @@ u8 *GetBoxNamePtr(u8 boxId)
         return NULL;
 }
 
-static u8 GetBoxWallpaper(u8 boxId)
-{
-    if (boxId < TOTAL_BOXES_COUNT)
-        return gPokemonStoragePtr->boxWallpapers[boxId];
-    else
-        return 0;
-}
-
-static void SetBoxWallpaper(u8 boxId, u8 wallpaperId)
-{
-    if (boxId < TOTAL_BOXES_COUNT && wallpaperId < WALLPAPER_COUNT)
-        gPokemonStoragePtr->boxWallpapers[boxId] = wallpaperId;
-}
-
 // For moving to the next Pokémon while viewing the summary screen
 s16 AdvanceStorageMonIndex(struct BoxPokemon *boxMons, u8 currIndex, u8 maxIndex, u8 mode)
 {
@@ -9753,81 +9356,6 @@ bool32 AnyStorageMonWithMove(u16 moveId)
 
     return FALSE;
 }
-
-
-//------------------------------------------------------------------------------
-//  SECTION: Walda
-//------------------------------------------------------------------------------
-
-
-void ResetWaldaWallpaper(void)
-{
-    gSaveBlock1Ptr->waldaPhrase.iconId = 0;
-    gSaveBlock1Ptr->waldaPhrase.patternId = 0;
-    gSaveBlock1Ptr->waldaPhrase.patternUnlocked = FALSE;
-    gSaveBlock1Ptr->waldaPhrase.colors[0] = RGB(21, 25, 30);
-    gSaveBlock1Ptr->waldaPhrase.colors[1] = RGB(6, 12, 24);
-    gSaveBlock1Ptr->waldaPhrase.text[0] = EOS;
-}
-
-void SetWaldaWallpaperLockedOrUnlocked(bool32 unlocked)
-{
-    gSaveBlock1Ptr->waldaPhrase.patternUnlocked = unlocked;
-}
-
-bool32 IsWaldaWallpaperUnlocked(void)
-{
-    return gSaveBlock1Ptr->waldaPhrase.patternUnlocked;
-}
-
-u32 GetWaldaWallpaperPatternId(void)
-{
-    return gSaveBlock1Ptr->waldaPhrase.patternId;
-}
-
-void SetWaldaWallpaperPatternId(u8 id)
-{
-    if (id < ARRAY_COUNT(sWaldaWallpapers))
-        gSaveBlock1Ptr->waldaPhrase.patternId = id;
-}
-
-u32 GetWaldaWallpaperIconId(void)
-{
-    return gSaveBlock1Ptr->waldaPhrase.iconId;
-}
-
-void SetWaldaWallpaperIconId(u8 id)
-{
-    if (id < ARRAY_COUNT(sWaldaWallpaperIcons))
-        gSaveBlock1Ptr->waldaPhrase.iconId = id;
-}
-
-u16 *GetWaldaWallpaperColorsPtr(void)
-{
-    return gSaveBlock1Ptr->waldaPhrase.colors;
-}
-
-void SetWaldaWallpaperColors(u16 color1, u16 color2)
-{
-    gSaveBlock1Ptr->waldaPhrase.colors[0] = color1;
-    gSaveBlock1Ptr->waldaPhrase.colors[1] = color2;
-}
-
-u8 *GetWaldaPhrasePtr(void)
-{
-    return gSaveBlock1Ptr->waldaPhrase.text;
-}
-
-void SetWaldaPhrase(const u8 *src)
-{
-    StringCopy(gSaveBlock1Ptr->waldaPhrase.text, src);
-}
-
-bool32 IsWaldaPhraseEmpty(void)
-{
-    return (gSaveBlock1Ptr->waldaPhrase.text[0] == EOS);
-}
-
 
 //------------------------------------------------------------------------------
 //  SECTION: TilemapUtil

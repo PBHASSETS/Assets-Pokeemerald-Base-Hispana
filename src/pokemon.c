@@ -2606,7 +2606,6 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
             break;
         }
         case MON_DATA_OT_GENDER:
-            retVal = 0;
             break;
         case MON_DATA_HP_IV:
             SET8(boxMon->hpIV);

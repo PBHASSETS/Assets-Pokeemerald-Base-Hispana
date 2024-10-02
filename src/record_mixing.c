@@ -174,8 +174,6 @@ void RecordMixingPlayerSpotTriggered(void)
 static void SetSrcLookupPointers(void)
 {
     sSecretBasesSave = gSaveBlock1Ptr->secretBases;
-    sTvShowsSave = gSaveBlock1Ptr->tvShows;
-    sPokeNewsSave = gSaveBlock1Ptr->pokeNews;
     sOldManSave = &gSaveBlock1Ptr->oldMan;
     sDewfordTrendsSave = gSaveBlock1Ptr->dewfordTrends;
     sRecordMixMailSave = &sRecordMixMail;
