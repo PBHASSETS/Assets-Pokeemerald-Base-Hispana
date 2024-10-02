@@ -974,43 +974,6 @@ static const struct SpriteTemplate sSpriteTemplate_64x64 =
     .callback = SpriteCallbackDummy,
 };
 
-// NOTE: Reordering this array will break compatibility with existing
-// saves.
-static const u32 sCompressedStatuses[] =
-{
-    STATUS1_NONE,
-    STATUS1_SLEEP_TURN(1),
-    STATUS1_SLEEP_TURN(2),
-    STATUS1_SLEEP_TURN(3),
-    STATUS1_SLEEP_TURN(4),
-    STATUS1_SLEEP_TURN(5),
-    STATUS1_POISON,
-    STATUS1_BURN,
-    STATUS1_FREEZE,
-    STATUS1_PARALYSIS,
-    STATUS1_TOXIC_POISON,
-    STATUS1_FROSTBITE,
-};
-
-static u32 CompressStatus(u32 status)
-{
-    s32 i;
-    for (i = 0; i < ARRAY_COUNT(sCompressedStatuses); i++)
-    {
-        if (sCompressedStatuses[i] == status)
-            return i;
-    }
-    return 0; // STATUS1_NONE
-}
-
-static u32 UncompressStatus(u32 compressedStatus)
-{
-    if (compressedStatus < ARRAY_COUNT(sCompressedStatuses))
-        return sCompressedStatuses[compressedStatus];
-    else
-        return STATUS1_NONE;
-}
-
 void ZeroBoxMonData(struct BoxPokemon *boxMon)
 {
     u8 *raw = (u8 *)boxMon;
@@ -1140,7 +1103,6 @@ void CreateBoxMon(struct BoxPokemon *boxMon, u16 species, u8 level, u8 fixedIV, 
     SetBoxMonData(boxMon, MON_DATA_IS_SHINY, &isShiny);
     StringCopy(speciesName, GetSpeciesName(species));
     SetBoxMonData(boxMon, MON_DATA_NICKNAME, speciesName);
-    SetBoxMonData(boxMon, MON_DATA_LANGUAGE, &gGameLanguage);
     SetBoxMonData(boxMon, MON_DATA_OT_NAME, gSaveBlock2Ptr->playerName);
     SetBoxMonData(boxMon, MON_DATA_SPECIES, &species);
     SetBoxMonData(boxMon, MON_DATA_EXP, &gExperienceTables[gSpeciesInfo[species].growthRate][level]);
@@ -1148,10 +1110,8 @@ void CreateBoxMon(struct BoxPokemon *boxMon, u16 species, u8 level, u8 fixedIV, 
     value = GetCurrentRegionMapSectionId();
     SetBoxMonData(boxMon, MON_DATA_MET_LOCATION, &value);
     SetBoxMonData(boxMon, MON_DATA_MET_LEVEL, &level);
-    SetBoxMonData(boxMon, MON_DATA_MET_GAME, &gGameVersion);
     value = ITEM_POKE_BALL;
     SetBoxMonData(boxMon, MON_DATA_POKEBALL, &value);
-    SetBoxMonData(boxMon, MON_DATA_OT_GENDER, &gSaveBlock2Ptr->playerGender);
 
     if (fixedIV < USE_RANDOM_IVS)
     {
@@ -1363,7 +1323,6 @@ void CreateBattleTowerMon(struct Pokemon *mon, struct BattleTowerPokemon *src)
 {
     s32 i;
     u8 nickname[max(32, POKEMON_NAME_BUFFER_SIZE)];
-    u8 language;
     u8 value;
 
     CreateMon(mon, src->species, src->level, 0, TRUE, src->personality, OT_ID_PRESET, src->otId);
@@ -1377,9 +1336,6 @@ void CreateBattleTowerMon(struct Pokemon *mon, struct BattleTowerPokemon *src)
 
     StringCopy(nickname, src->nickname);
 
-    language = GAME_LANGUAGE;
-
-    SetMonData(mon, MON_DATA_LANGUAGE, &language);
     SetMonData(mon, MON_DATA_NICKNAME, nickname);
     SetMonData(mon, MON_DATA_HP_EV, &src->hpEV);
     SetMonData(mon, MON_DATA_ATK_EV, &src->attackEV);
@@ -1410,7 +1366,6 @@ void CreateBattleTowerMon_HandleLevel(struct Pokemon *mon, struct BattleTowerPok
     s32 i;
     u8 nickname[max(32, POKEMON_NAME_BUFFER_SIZE)];
     u8 level;
-    u8 language;
     u8 value;
 
     if (gSaveBlock2Ptr->frontier.lvlMode != FRONTIER_LVL_50)
@@ -1431,9 +1386,6 @@ void CreateBattleTowerMon_HandleLevel(struct Pokemon *mon, struct BattleTowerPok
 
     StringCopy(nickname, src->nickname);
 
-    language = GAME_LANGUAGE;
-
-    SetMonData(mon, MON_DATA_LANGUAGE, &language);
     SetMonData(mon, MON_DATA_NICKNAME, nickname);
     SetMonData(mon, MON_DATA_HP_EV, &src->hpEV);
     SetMonData(mon, MON_DATA_ATK_EV, &src->attackEV);
@@ -1463,7 +1415,6 @@ void CreateApprenticeMon(struct Pokemon *mon, const struct Apprentice *src, u8 m
 {
     s32 i;
     u16 evAmount;
-    u8 language;
     u32 otId = gApprentices[src->id].otId;
     u32 personality = ((gApprentices[src->id].otId >> 8) | ((gApprentices[src->id].otId & 0xFF) << 8))
                     + src->party[monId].species + src->number;
@@ -1485,9 +1436,6 @@ void CreateApprenticeMon(struct Pokemon *mon, const struct Apprentice *src, u8 m
     for (i = 0; i < NUM_STATS; i++)
         SetMonData(mon, MON_DATA_HP_EV + i, &evAmount);
 
-    language = src->language;
-    SetMonData(mon, MON_DATA_LANGUAGE, &language);
-    SetMonData(mon, MON_DATA_OT_NAME, GetApprenticeNameInLanguage(src->id, language));
     CalculateMonStats(mon);
 }
 
@@ -1765,8 +1713,6 @@ void BoxMonToMon(const struct BoxPokemon *src, struct Pokemon *dest)
     dest->status = GetBoxMonData(&dest->box, MON_DATA_STATUS, NULL);
     dest->hp = 0;
     dest->maxHP = 0;
-    value = MAIL_NONE;
-    SetMonData(dest, MON_DATA_MAIL, &value);
     value = GetBoxMonData(&dest->box, MON_DATA_HP_LOST);
     CalculateMonStats(dest);
     value = GetMonData(dest, MON_DATA_MAX_HP) - value;
@@ -2215,7 +2161,7 @@ u32 GetMonData3(struct Pokemon *mon, s32 field, u8 *data)
         ret = mon->spDefense;
         break;
     case MON_DATA_MAIL:
-        ret = mon->mail;
+        ret = 0;
         break;
     default:
         ret = GetBoxMonData(&mon->box, field, data);
@@ -2516,7 +2462,6 @@ void SetMonData(struct Pokemon *mon, s32 field, const void *dataArg)
     {
     case MON_DATA_STATUS:
         SET32(mon->status);
-        SetBoxMonData(&mon->box, MON_DATA_STATUS, dataArg);
         break;
     case MON_DATA_LEVEL:
         SET8(mon->level);
@@ -2556,7 +2501,6 @@ void SetMonData(struct Pokemon *mon, s32 field, const void *dataArg)
         SET16(mon->spDefense);
         break;
     case MON_DATA_MAIL:
-        SET8(mon->mail);
         break;
     case MON_DATA_SPECIES_OR_EGG:
         break;
@@ -2662,6 +2606,7 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
             break;
         }
         case MON_DATA_OT_GENDER:
+            retVal = 0;
             break;
         case MON_DATA_HP_IV:
             SET8(boxMon->hpIV);
@@ -2780,7 +2725,6 @@ u8 GiveMonToPlayer(struct Pokemon *mon)
     s32 i;
 
     SetMonData(mon, MON_DATA_OT_NAME, gSaveBlock2Ptr->playerName);
-    SetMonData(mon, MON_DATA_OT_GENDER, &gSaveBlock2Ptr->playerGender);
     SetMonData(mon, MON_DATA_OT_ID, gSaveBlock2Ptr->playerTrainerId);
 
     for (i = 0; i < PARTY_SIZE; i++)
@@ -4498,11 +4442,6 @@ void DrawSpindaSpots(u32 personality, u8 *dest, bool32 isSecondFrame)
 
 void EvolutionRenameMon(struct Pokemon *mon, u16 oldSpecies, u16 newSpecies)
 {
-    u8 language;
-    GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
-    language = GetMonData(mon, MON_DATA_LANGUAGE, &language);
-    if (language == GAME_LANGUAGE && !StringCompare(GetSpeciesName(oldSpecies), gStringVar1))
-        SetMonData(mon, MON_DATA_NICKNAME, GetSpeciesName(newSpecies));
 }
 
 // The below two functions determine which side of a multi battle the trainer battles on

@@ -1501,49 +1501,6 @@ void GetFrontierTrainerName(u8 *dst, u16 trainerId)
     dst[i] = EOS;
 }
 
-static bool8 IsFrontierTrainerFemale(u16 trainerId)
-{
-    u32 i;
-    u8 facilityClass;
-
-    SetFacilityPtrsGetLevel();
-    if (trainerId == TRAINER_EREADER)
-    {
-    #if FREE_BATTLE_TOWER_E_READER == FALSE
-        facilityClass = gSaveBlock2Ptr->frontier.ereaderTrainer.facilityClass;
-    #else
-        facilityClass = 0;
-    #endif //FREE_BATTLE_TOWER_E_READER
-    }
-    else if (trainerId == TRAINER_FRONTIER_BRAIN)
-    {
-        return IsFrontierBrainFemale();
-    }
-    else if (trainerId < FRONTIER_TRAINERS_COUNT)
-    {
-        facilityClass = gFacilityTrainers[trainerId].facilityClass;
-    }
-    else if (trainerId < TRAINER_RECORD_MIXING_APPRENTICE)
-    {
-        facilityClass = gSaveBlock2Ptr->frontier.towerRecords[trainerId - TRAINER_RECORD_MIXING_FRIEND].facilityClass;
-    }
-    else
-    {
-        facilityClass = gApprentices[gSaveBlock2Ptr->apprentices[trainerId - TRAINER_RECORD_MIXING_APPRENTICE].id].facilityClass;
-    }
-
-    // Search female classes.
-    for (i = 0; i < ARRAY_COUNT(gTowerFemaleFacilityClasses); i++)
-    {
-        if (gTowerFemaleFacilityClasses[i] == facilityClass)
-            break;
-    }
-    if (i != ARRAY_COUNT(gTowerFemaleFacilityClasses))
-        return TRUE;
-    else
-        return FALSE;
-}
-
 void FillFrontierTrainerParty(u8 monsCount)
 {
     ZeroEnemyPartyMons();
@@ -3081,8 +3038,6 @@ static void FillPartnerParty(u16 trainerId)
 
             StringCopy(trainerName, gBattlePartners[trainerId - TRAINER_PARTNER(PARTNER_NONE)].trainerName);
             SetMonData(&gPlayerParty[i + 3], MON_DATA_OT_NAME, trainerName);
-            j = gBattlePartners[SanitizeTrainerId(trainerId - TRAINER_PARTNER(PARTNER_NONE))].encounterMusic_gender >> 7;
-            SetMonData(&gPlayerParty[i + 3], MON_DATA_OT_GENDER, &j);
         }
     }
     else if (trainerId == TRAINER_EREADER)
@@ -3102,8 +3057,6 @@ static void FillPartnerParty(u16 trainerId)
             for (j = 0; j < PLAYER_NAME_LENGTH + 1; j++)
                 trainerName[j] = gFacilityTrainers[trainerId].trainerName[j];
             SetMonData(&gPlayerParty[MULTI_PARTY_SIZE + i], MON_DATA_OT_NAME, &trainerName);
-            j = IsFrontierTrainerFemale(trainerId);
-            SetMonData(&gPlayerParty[MULTI_PARTY_SIZE + i], MON_DATA_OT_GENDER, &j);
         }
     }
     else if (trainerId < TRAINER_RECORD_MIXING_APPRENTICE)

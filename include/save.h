@@ -14,13 +14,14 @@
 
 #define SECTOR_ID_SAVEBLOCK2          0
 #define SECTOR_ID_SAVEBLOCK1_START    1
-#define SECTOR_ID_SAVEBLOCK1_END      4
-#define SECTOR_ID_PKMN_STORAGE_START  5
+#define SECTOR_ID_SAVEBLOCK1_END      3
+#define SECTOR_ID_PKMN_STORAGE_START  4
 #define SECTOR_ID_PKMN_STORAGE_END   17
 #define SECTOR_ID_HOF                18
 #define SECTOR_ID_TRAINER_HILL       30
 #define SECTOR_ID_RECORDED_BATTLE    31
-#define SECTORS_COUNT                32
+
+#define SECTORS_COUNT                19
 
 #define SAVE_STATUS_EMPTY    0
 #define SAVE_STATUS_OK       1
