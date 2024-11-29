@@ -70,6 +70,7 @@ static inline u16 Random2(void)
 }
 
 void AdvanceRandom(void);
+u16 RandRange(u16 min, u16 max);
 #else
 typedef u32 rng_value_t;
 
