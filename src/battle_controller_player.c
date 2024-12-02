@@ -13,6 +13,7 @@
 #include "battle_gimmick.h"
 #include "bg.h"
 #include "data.h"
+#include "graphics.h"
 #include "item.h"
 #include "item_menu.h"
 #include "link.h"
@@ -160,6 +161,10 @@ static void (*const sPlayerBufferCommands[CONTROLLER_CMDS_COUNT])(u32 battler) =
     [CONTROLLER_DEBUGMENU]                = PlayerHandleBattleDebug,
     [CONTROLLER_TERMINATOR_NOP]           = BtlController_TerminatorNop
 };
+
+
+
+
 
 void SetControllerToPlayer(u32 battler)
 {
@@ -316,6 +321,7 @@ static void HandleInputChooseAction(u32 battler)
         }
     }
 
+
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
@@ -343,9 +349,11 @@ static void HandleInputChooseAction(u32 battler)
         if (gActionSelectionCursor[battler] & 1) // if is B_ACTION_USE_ITEM or B_ACTION_RUN
         {
             PlaySE(SE_SELECT);
-            ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
+            //ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
             gActionSelectionCursor[battler] ^= 1;
-            ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            //slect_action = 0;
+            //ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            ActionSelectionCreateCursorAt_Gfx(gActionSelectionCursor[battler], 0);
         }
     }
     else if (JOY_NEW(DPAD_RIGHT))
@@ -353,9 +361,11 @@ static void HandleInputChooseAction(u32 battler)
         if (!(gActionSelectionCursor[battler] & 1)) // if is B_ACTION_USE_MOVE or B_ACTION_SWITCH
         {
             PlaySE(SE_SELECT);
-            ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
+            //ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
             gActionSelectionCursor[battler] ^= 1;
-            ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            //slect_action = 1;
+            //ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            ActionSelectionCreateCursorAt_Gfx(gActionSelectionCursor[battler], 0);
         }
     }
     else if (JOY_NEW(DPAD_UP))
@@ -363,9 +373,11 @@ static void HandleInputChooseAction(u32 battler)
         if (gActionSelectionCursor[battler] & 2) // if is B_ACTION_SWITCH or B_ACTION_RUN
         {
             PlaySE(SE_SELECT);
-            ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
+            //ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
             gActionSelectionCursor[battler] ^= 2;
-            ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            //slect_action = 2;
+            //ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            ActionSelectionCreateCursorAt_Gfx(gActionSelectionCursor[battler], 0);
         }
     }
     else if (JOY_NEW(DPAD_DOWN))
@@ -373,9 +385,11 @@ static void HandleInputChooseAction(u32 battler)
         if (!(gActionSelectionCursor[battler] & 2)) // if is B_ACTION_USE_MOVE or B_ACTION_USE_ITEM
         {
             PlaySE(SE_SELECT);
-            ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
+            //ActionSelectionDestroyCursorAt(gActionSelectionCursor[battler]);
             gActionSelectionCursor[battler] ^= 2;
-            ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            //ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+            //slect_action = 3;
+            ActionSelectionCreateCursorAt_Gfx(gActionSelectionCursor[battler], 0);
         }
     }
     else if (JOY_NEW(B_BUTTON) || gPlayerDpadHoldFrames > 59)
@@ -409,20 +423,199 @@ static void HandleInputChooseAction(u32 battler)
     {
         SwapHpBarsWithHpText();
     }
-    else if (DEBUG_BATTLE_MENU == TRUE && JOY_NEW(SELECT_BUTTON))
+#if DEBUG_BATTLE_MENU == TRUE
+    else if (JOY_NEW(SELECT_BUTTON))
     {
         BtlController_EmitTwoReturnValues(battler, BUFFER_B, B_ACTION_DEBUG, 0);
         PlayerBufferExecCompleted(battler);
     }
-    else if (B_LAST_USED_BALL == TRUE && B_LAST_USED_BALL_CYCLE == FALSE
-             && JOY_NEW(B_LAST_USED_BALL_BUTTON) && CanThrowLastUsedBall())
-    {
+}
+#endif
+#if B_LAST_USED_BALL == TRUE && B_LAST_USED_BALL_CYCLE == FALSE
+    else if (JOY_NEW(B_LAST_USED_BALL_BUTTON) && CanThrowLastUsedBall())
         PlaySE(SE_SELECT);
         TryHideLastUsedBall();
         BtlController_EmitTwoReturnValues(battler, BUFFER_B, B_ACTION_THROW_BALL, 0);
         PlayerBufferExecCompleted(battler);
     }
+#endif
+
+//**********************************************
+//ICONS MENU
+//**********************************************
+
+#define TAG_ICONS_BATTLE 0x3333
+
+
+static EWRAM_DATA u8 sBattlepritesId[4]= {};
+
+
+
+static const u16 sIconsPal[] = INCBIN_U16("graphics/battle_interface/actions/icons_pal.gbapal"); //Cargar Paleta
+static const u16 sIconsSelPal[] = INCBIN_U16("graphics/battle_interface/actions/iconsSel_pal.gbapal");
+
+static const u8 sIconBattleSprites[] = INCBIN_U8("graphics/battle_interface/actions/battle_icons.4bpp"); //Cargar Grafico FIGHT
+
+
+static const struct OamData gSpriteOamData32 =
+{
+    .y = 0,
+    .affineMode = 0,
+    .objMode = 0, 
+    .mosaic = 0, 
+    .bpp = 0,
+    .shape = 1,
+    .x = 0, 
+    .matrixNum = 0,
+    .size = SPRITE_SIZE(64x32),
+    .tileNum = 0,
+    .priority = 0, 
+    .paletteNum = 0, 
+    .affineParam = 0, 
+};
+
+static const struct SpriteSheet spriteSheetIconBattle =
+{
+            .data = sIconBattleSprites, //GRÁFICO ----------
+            .size = 8192, //TAMAÑO DEL GRÁFICO
+            .tag = TAG_ICONS_BATTLE, //LUGAR DONDE SE CARGA EL GRÁFICO ----------
+};
+
+static const struct SpritePalette spritePaletteIconsBattle =
+{
+            .data = sIconsPal,
+            .tag = TAG_ICONS_BATTLE, //LUGAR DONDE SE CARGA LA PALETA ----------
+};
+
+static const struct SpritePalette spritePaletteIconsSelBattle =
+{
+            .data = sIconsSelPal,
+            .tag = TAG_ICONS_BATTLE, //LUGAR DONDE SE CARGA LA PALETA ----------
+};
+
+static const union AnimCmd sAnimFightIcon[] =
+{
+    ANIMCMD_FRAME(0, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimBagIcon[] =
+{
+    ANIMCMD_FRAME(32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimPokeIcon[] =
+{
+    ANIMCMD_FRAME(2*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimRunIcon[] =
+{
+    ANIMCMD_FRAME(3*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimSelFightIcon[] =
+{
+    ANIMCMD_FRAME(4*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimSelBagIcon[] =
+{
+    ANIMCMD_FRAME(5*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimSelPokeIcon[] =
+{
+    ANIMCMD_FRAME(6*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd sAnimSelRunIcon[] =
+{
+    ANIMCMD_FRAME(7*32, 0),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd *const sAnimIconsTable[] =
+{
+    sAnimFightIcon,
+    sAnimBagIcon,
+    sAnimPokeIcon,
+    sAnimRunIcon,
+
+    sAnimSelFightIcon,
+    sAnimSelBagIcon,
+    sAnimSelPokeIcon,
+    sAnimSelRunIcon,
+};
+
+static const struct SpriteTemplate spriteTemplateIconBattle =
+{
+    .tileTag = TAG_ICONS_BATTLE, //LUGAR DONDE SE CARGA EL GRÁFICO ----------
+    .paletteTag = TAG_ICONS_BATTLE, //LUGAR DONDE SE CARGA LA PALETA ----------
+    .oam = &gSpriteOamData32, //OAM DATA DEL ICONO ----------
+    .anims = sAnimIconsTable, //TABLA DE ANIMACIÓN DEL ICONO ---------- 
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCallbackDummy, //ANIMACIÓN DEL ICONO ----------
+};
+
+u8 selec_action;
+
+void LoadSpriteIcons()
+{
+    s8 i;
+    u8 id;
+    u8 y = 124;
+    u8 x = 150;
+
+    LoadSpriteSheet(&spriteSheetIconBattle);
+    LoadSpritePalette(&spritePaletteIconsBattle);
+
+    for (i = 0; i < 4; i++)
+    {
+        id = CreateSprite(&spriteTemplateIconBattle, x, y, 0);
+        StartSpriteAnim(&gSprites[id], i);
+        switch (i)
+        {
+        case 0:
+            y = 148;
+            x = 210;
+            break;
+        case 1:
+            y = 124;
+            x = 210;
+            break;
+        case 2:
+            y = 148;
+            x = 150;
+            break;
+        }
+        sBattlepritesId[i] = id;
+    }
 }
+
+void DestroySpriteIconsFight()
+{
+    s8 i;
+
+    for (i = 0; i < 4; i++)
+    {
+        DestroySprite(&gSprites[sBattlepritesId[i]]);
+    }
+    FreeSpriteTilesByTag(TAG_ICONS_BATTLE);
+    FreeSpritePaletteByTag(TAG_ICONS_BATTLE);
+}
+
+
+//**********************************************
+//**********************************************
+
 
 static void HandleInputChooseTarget(u32 battler)
 {
@@ -910,7 +1103,7 @@ static void ReloadMoveNames(u32 battler)
         gBattleStruct->zmove.viewing = FALSE;
         MoveSelectionDestroyCursorAt(battler);
         MoveSelectionDisplayMoveNames(battler);
-        MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
+    MoveSelectionCreateCursorAt(gMoveSelectionCursor[battler], 0);
         MoveSelectionDisplayPpNumber(battler);
         MoveSelectionDisplayMoveType(battler);
     }
@@ -1639,6 +1832,7 @@ static void MoveSelectionDisplayPpString(u32 battler)
 {
     StringCopy(gDisplayedStringBattle, gText_MoveInterfacePP);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP);
+    //DestroySpriteIconsFight();
 }
 
 static void MoveSelectionDisplayPpNumber(u32 battler)
@@ -1829,8 +2023,8 @@ void ActionSelectionCreateCursorAt(u8 cursorPosition, u8 baseTileNum)
     src[0] = 1;
     src[1] = 2;
 
-    CopyToBgTilemapBufferRect_ChangePalette(0, src, 7 * (cursorPosition & 1) + 16, 35 + (cursorPosition & 2), 1, 2, 0x11);
-    CopyBgTilemapBufferToVram(0);
+    //CopyToBgTilemapBufferRect_ChangePalette(0, src, 7 * (cursorPosition & 1) + 16, 35 + (cursorPosition & 2), 1, 2, 0x11);
+    //CopyBgTilemapBufferToVram(0);
 }
 
 void ActionSelectionDestroyCursorAt(u8 cursorPosition)
@@ -1841,6 +2035,29 @@ void ActionSelectionDestroyCursorAt(u8 cursorPosition)
 
     CopyToBgTilemapBufferRect_ChangePalette(0, src, 7 * (cursorPosition & 1) + 16, 35 + (cursorPosition & 2), 1, 2, 0x11);
     CopyBgTilemapBufferToVram(0);
+}
+
+//Resalta la opción seleccionada de amarillo:
+
+#define ACTION_LUCHAR   0
+#define ACTION_BOLSA    1
+#define ACTION_POKEMON  2
+#define ACTION_HUIR     3
+#define ACTION_PALLETE_OFFSET   0xF0 //paleta 15
+#define ACTION_PALLETE_NUM(n)  (ACTION_PALLETE_OFFSET + n)
+
+static const u16 sHighlightPalette[] =
+{
+    [ACTION_LUCHAR]  = ACTION_PALLETE_NUM(12),
+    [ACTION_BOLSA]   = ACTION_PALLETE_NUM(13),
+    [ACTION_POKEMON] = ACTION_PALLETE_NUM(14),
+    [ACTION_HUIR]    = ACTION_PALLETE_NUM(15),
+};
+
+void ActionSelectionCreateCursorAt_Gfx(u8 cursorPos, u8 unused)
+{
+    LoadPalette(gActionsMenu_Pal, ACTION_PALLETE_OFFSET, 0x20);
+    gPlttBufferFaded[sHighlightPalette[cursorPos]] = RGB(31, 25, 9);//RGB_YELLOW;
 }
 
 void CB2_SetUpReshowBattleScreenAfterMenu(void)
@@ -2034,17 +2251,26 @@ static void HandleChooseActionAfterDma3(u32 battler)
 
 static void PlayerHandleChooseAction(u32 battler)
 {
-    s32 i;
 
     gBattlerControllerFuncs[battler] = HandleChooseActionAfterDma3;
     BattleTv_ClearExplosionFaintCause();
-    BattlePutTextOnWindow(gText_BattleMenu, B_WIN_ACTION_MENU);
+    //BattlePutTextOnWindow(gText_BattleMenu, B_WIN_ACTION_MENU);
+    //LoadSpriteIcons();
 
-    for (i = 0; i < 4; i++)
-        ActionSelectionDestroyCursorAt(i);
+    //for (i = 0; i < 4; i++)
+    //    ActionSelectionDestroyCursorAt(i);
+
+    //cargamos la paleta y 
+    LoadPalette(gActionsMenu_Pal, ACTION_PALLETE_OFFSET, 0x20);
+    FillWindowPixelBuffer(B_WIN_ACTION_MENU_GFX, PIXEL_FILL(1));
+    //cargamos el gráfico:
+    BlitBitmapRectToWindow(B_WIN_ACTION_MENU_GFX, gActionsMenu_Gfx +  0x0 * 32, 0, 0, 128, 48, 0, 0, 120, 48);
+    PutWindowTilemap(B_WIN_ACTION_MENU_GFX);
+    CopyWindowToVram(B_WIN_ACTION_MENU_GFX, COPYWIN_FULL);
 
     TryRestoreLastUsedBall();
-    ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+    //ActionSelectionCreateCursorAt(gActionSelectionCursor[battler], 0);
+    ActionSelectionCreateCursorAt_Gfx(gActionSelectionCursor[battler], 0);
     PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, battler, gBattlerPartyIndexes[battler]);
     BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_ACTION_PROMPT);
