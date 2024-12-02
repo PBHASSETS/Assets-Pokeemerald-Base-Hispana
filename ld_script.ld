@@ -359,6 +359,7 @@ SECTIONS {
         src/battle_transition_frontier.o(.text);
         src/international_string_util.o(.text);
         src/pokemon_sprite_visualizer.o(.text);
+        src/ui_birch_case.o(.text);
         src/sound_check_menu.o(.text);
         src/ui_main_menu.o(.text);
         src/ui_startmenu_full.o(.text);
@@ -735,6 +736,7 @@ SECTIONS {
         src/m4a_tables.o(.rodata);
         data/sound_data.o(.rodata);
         src/pokemon_sprite_visualizer.o(.rodata);
+        src/ui_birch_case.o(.rodata);
         src/sound_check_menu.o(.rodata);
         src/ui_main_menu.o(.rodata);
         src/ui_startmenu_full.o(.rodata);
