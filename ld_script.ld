@@ -365,6 +365,7 @@ SECTIONS {
         src/ui_startmenu_full.o(.text);
         src/expansion_intro.o(.text);
         src/tutoriales/minijuego_zubat.o(.text);
+        src/new_shop.o(.text);
         src/soar.o(.text);
 		src/dexnav.o(.text);
         src/mining_game.o(.text);
@@ -742,6 +743,7 @@ SECTIONS {
         src/ui_startmenu_full.o(.rodata);
         src/expansion_intro.o(.rodata);
         src/tutoriales/minijuego_zubat.o(.rodata);
+        src/new_shop.o(.rodata);
 		src/dexnav.o(.rodata);
         src/mining_game.o(.rodata);
     } > ROM =0
