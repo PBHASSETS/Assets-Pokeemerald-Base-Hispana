@@ -1103,3 +1103,5 @@ EventScript_VsSeekerChargingDone::
 	.include "data/maps/ChampionRoute/scripts.inc"
 
 	.include "data/maps/NationalPark/scripts.inc"
+
+	.include "data/maps/test/scripts.inc"

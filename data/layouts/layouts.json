@@ -4430,6 +4430,16 @@
       "secondary_tileset": "gTileset_NationalPark",
       "border_filepath": "data/layouts/NationalPark/border.bin",
       "blockdata_filepath": "data/layouts/NationalPark/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST",
+      "name": "test_Layout",
+      "width": 41,
+      "height": 33,
+      "primary_tileset": "gTileset_JohtoGeneral",
+      "secondary_tileset": "gTileset_1J",
+      "border_filepath": "data/layouts/test/border.bin",
+      "blockdata_filepath": "data/layouts/test/map.bin"
     }
   ]
 }

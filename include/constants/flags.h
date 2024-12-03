@@ -1544,7 +1544,7 @@
 #define FLAG_VISITED_SIX_ISLAND                           (SYSTEM_FLAGS + 0xA8) // Unused Flag
 #define FLAG_VISITED_SEVEN_ISLAND                           (SYSTEM_FLAGS + 0xA9) // Unused Flag
 #define FLAG_VISITED_ONE_ISLAND                          (SYSTEM_FLAGS + 0xAA) // Unused Flag
-#define FLAG_UNUSED_0x90B                           (SYSTEM_FLAGS + 0xAB) // Unused Flag
+#define FLAG_VISITED_PALLET_TOWN                           (SYSTEM_FLAGS + 0xAB) // Unused Flag
 #define FLAG_UNUSED_0x90C                           (SYSTEM_FLAGS + 0xAC) // Unused Flag
 #define FLAG_UNUSED_0x90D                           (SYSTEM_FLAGS + 0xAD) // Unused Flag
 #define FLAG_UNUSED_0x90E                           (SYSTEM_FLAGS + 0xAE) // Unused Flag
