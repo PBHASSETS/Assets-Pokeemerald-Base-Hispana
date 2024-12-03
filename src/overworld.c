@@ -208,7 +208,7 @@ EWRAM_DATA struct LinkPlayerObjectEvent gLinkPlayerObjectEvents[4] = {0};
 
 static const u8 sMapsecToRegion[] = {
     [MAPSEC_LITTLEROOT_TOWN]            = REGION_HOENN,
-    [MAPSEC_OLDALE_TOWN]                = REGION_HOENN,
+    [MAPSEC_OLDALE_TOWN]                = REGION_KANTO,
     [MAPSEC_DEWFORD_TOWN]               = REGION_HOENN,
     [MAPSEC_LAVARIDGE_TOWN]             = REGION_HOENN,
     [MAPSEC_FALLARBOR_TOWN]             = REGION_HOENN,

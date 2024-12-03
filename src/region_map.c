@@ -117,13 +117,16 @@ static void CB_ExitFlyMap(void);
 static const u16 sRegionMapCursorPal[] = INCBIN_U16("graphics/pokenav/region_map/cursor.gbapal");
 static const u32 sRegionMapCursorSmallGfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/cursor_small.4bpp.lz");
 static const u32 sRegionMapCursorLargeGfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/cursor_large.4bpp.lz");
+
 const u16 sRegionMapBg_Pal[] = INCBIN_U16("graphics/pokenav/region_map/map.gbapal");
 const u32 sRegionMapBg_GfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/map.8bpp.lz");
 
+static const u32 sKantoRegionMapsBg_GfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/kanto.8bpp.lz");
+static const u32 sKantoRegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/kanto.bin.lz");
+static const u16 sKantoRegionMapBg_Pal[] = INCBIN_U16("graphics/pokenav/region_map/kanto.gbapal");
+
 static const u32 sSeviiRegionMapsBg_GfxLZ[] = INCBIN_U32("graphics/pokenav/region_map/region_map.8bpp.lz");
 static const u32 sRegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/map.bin.lz");
-
-static const u32 sKantoRegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/sevii_123.bin.lz");
 
 static const u32 sSevii123RegionMapBg_TilemapLZ[] = INCBIN_U32("graphics/pokenav/region_map/sevii_123.bin.lz");
 
@@ -569,9 +572,27 @@ bool8 LoadRegionMapGfx(void)
                 LZ77UnCompVram(sRegionMapBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
             break;
         case REGION_SEVII123:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSeviiRegionMapsBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sSeviiRegionMapsBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
         case REGION_SEVII45:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSeviiRegionMapsBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sSeviiRegionMapsBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
         case REGION_SEVII67:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSeviiRegionMapsBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sSeviiRegionMapsBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
+            break;
         case REGION_KANTO:
+            if (sRegionMap->bgManaged)
+                DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sKantoRegionMapsBg_GfxLZ, 0, 0, 0);
+            else
+                LZ77UnCompVram(sKantoRegionMapsBg_GfxLZ, (u16 *)BG_CHAR_ADDR(2));
+            break;
         default:
             if (sRegionMap->bgManaged)
                 DecompressAndCopyTileDataToVram(sRegionMap->bgNum, sSeviiRegionMapsBg_GfxLZ, 0, 0, 0);
@@ -645,9 +666,23 @@ bool8 LoadRegionMapGfx(void)
         };
         break;
     case 2:
-        if (!FreeTempTileDataBuffersIfPossible())
-            LoadPalette(sRegionMapBg_Pal, BG_PLTT_ID(7), 3 * PLTT_SIZE_4BPP);
-
+        if (!FreeTempTileDataBuffersIfPossible()){
+            switch(gMapHeader.region)
+            {
+                    case REGION_HOENN:
+                        LoadPalette(sRegionMapBg_Pal, 0x70, 0x60);
+                        break;
+                    case REGION_KANTO:
+                        LoadPalette(sRegionMapBg_Pal, 0x70, 0x60);
+                        break;
+					case REGION_SEVII123:	
+					case REGION_SEVII45:
+					case REGION_SEVII67:
+                    default:
+                        LoadPalette(sRegionMapBg_Pal, 0x70, 0x60);
+                        break;
+                }
+        }
         break;
     case 3:
         LZ77UnCompWram(sRegionMapCursorSmallGfxLZ, sRegionMap->cursorSmallImage);
@@ -2003,7 +2038,11 @@ static void LoadFlyDestIcons(void)
     LoadSpriteSheet(&sheet);
     LoadSpritePalette(&sFlyTargetIconsSpritePalette);
     CreateFlyDestIcons();
-    TryCreateRedOutlineFlyDestIcons();
+    // Verificar si la región actual es Hoenn
+    if (gMapHeader.region == REGION_HOENN)
+    {
+        TryCreateRedOutlineFlyDestIcons();
+    }
 }
 
 // Sprite data for SpriteCB_FlyDestIcon
