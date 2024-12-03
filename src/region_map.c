@@ -1346,18 +1346,18 @@ u8 GetMapsecType(u16 mapSecId)
             return FlagGet(FLAG_VISITED_SOOTOPOLIS_CITY) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
         case MAPSEC_EVER_GRANDE_CITY:
             return FlagGet(FLAG_VISITED_EVER_GRANDE_CITY) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_TWO_ISLAND:
-        return FlagGet(FLAG_VISITED_TWO_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_THREE_ISLAND:
-        return FlagGet(FLAG_VISITED_THREE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_FOUR_ISLAND:
-        return FlagGet(FLAG_VISITED_FOUR_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_FIVE_ISLAND:
-        return FlagGet(FLAG_VISITED_FIVE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_SIX_ISLAND:
-        return FlagGet(FLAG_VISITED_SIX_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
-    case MAPSEC_SEVEN_ISLAND:
-        return FlagGet(FLAG_VISITED_SEVEN_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_TWO_ISLAND:
+            return FlagGet(FLAG_VISITED_TWO_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_THREE_ISLAND:
+            return FlagGet(FLAG_VISITED_THREE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_FOUR_ISLAND:
+            return FlagGet(FLAG_VISITED_FOUR_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_FIVE_ISLAND:
+            return FlagGet(FLAG_VISITED_FIVE_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_SIX_ISLAND:
+            return FlagGet(FLAG_VISITED_SIX_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
+        case MAPSEC_SEVEN_ISLAND:
+            return FlagGet(FLAG_VISITED_SEVEN_ISLAND) ? MAPSECTYPE_CITY_CANFLY : MAPSECTYPE_CITY_CANTFLY;
         case MAPSEC_BATTLE_FRONTIER:
             return FlagGet(FLAG_LANDMARK_BATTLE_FRONTIER) ? MAPSECTYPE_BATTLE_FRONTIER : MAPSECTYPE_NONE;
         case MAPSEC_SOUTHERN_ISLAND:
@@ -2085,9 +2085,35 @@ static void CreateFlyDestIcons(void)
             mapSecEnd = MAPSEC_SIX_ISLAND; // Comentario original.
             break;
         case REGION_KANTO:
-            canFlyFlag = FLAG_VISITED_PALLET_TOWN;
-            mapSecStart = MAPSEC_PALLET_TOWN;
-            mapSecEnd = MAPSEC_SPECIAL_AREA;
+                canFlyFlag = FLAG_VISITED_PALLET_TOWN;
+                for (mapSecId = MAPSEC_PALLET_TOWN; mapSecId <= MAPSEC_ROUTE_10_POKECENTER; mapSecId++)
+                {
+                    GetMapSecDimensions(mapSecId, &x, &y, &width, &height);
+                    x = (x + MAPCURSOR_X_MIN) * 8 + 4;
+                    y = (y + MAPCURSOR_Y_MIN) * 8 + 4;
+
+                    if (width == 2)
+                        shape = SPRITE_SHAPE(16x8);
+                    else if (height == 2)
+                            shape = SPRITE_SHAPE(8x16);
+                    else
+                            shape = SPRITE_SHAPE(8x8);
+
+                    spriteId = CreateSprite(&sFlyDestIconSpriteTemplate, x, y, 10);
+                    if (spriteId != MAX_SPRITES)
+                    {
+                        gSprites[spriteId].oam.shape = shape;
+
+                        if (FlagGet(canFlyFlag))
+                            gSprites[spriteId].callback = SpriteCB_FlyDestIcon;
+                        else
+                            shape += 3;
+
+                        StartSpriteAnim(&gSprites[spriteId], shape);
+                        gSprites[spriteId].sIconMapSec = mapSecId;
+                    }
+                    canFlyFlag++;
+                    }
         default: // Manejo seguro para valores inesperados.
             return; // Salir de la función si la región no es válida.
     }
