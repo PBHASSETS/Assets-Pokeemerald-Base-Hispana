@@ -249,3 +249,12 @@ const u16 gMetatileAttributes_League[] = INCBIN_U16("data/tilesets/secondary/lea
 
 const u16 gMetatiles_NationalPark[] = INCBIN_U16("data/tilesets/secondary/national_park/metatiles.bin");
 const u16 gMetatileAttributes_NationalPark[] = INCBIN_U16("data/tilesets/secondary/national_park/metatile_attributes.bin");
+
+const u16 gMetatiles_littleroot_town[] = INCBIN_U16("data/tilesets/secondary/littleroot_town/metatiles.bin");
+const u16 gMetatileAttributes_littleroot_town[] = INCBIN_U16("data/tilesets/secondary/littleroot_town/metatile_attributes.bin");
+
+const u16 gMetatiles_oldale_town[] = INCBIN_U16("data/tilesets/secondary/oldale_town/metatiles.bin");
+const u16 gMetatileAttributes_oldale_town[] = INCBIN_U16("data/tilesets/secondary/oldale_town/metatile_attributes.bin");
+
+const u16 gMetatiles_vendanturf[] = INCBIN_U16("data/tilesets/secondary/vendanturf/metatiles.bin");
+const u16 gMetatileAttributes_vendanturf[] = INCBIN_U16("data/tilesets/secondary/vendanturf/metatile_attributes.bin");

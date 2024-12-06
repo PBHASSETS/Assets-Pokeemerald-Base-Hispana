@@ -4,7 +4,7 @@
     {
       "id": "LAYOUT_PETALBURG_CITY",
       "name": "PetalburgCity_Layout",
-      "width": 30,
+      "width": 44,
       "height": 30,
       "primary_tileset": "gTileset_General",
       "secondary_tileset": "gTileset_Petalburg",
@@ -94,20 +94,20 @@
     {
       "id": "LAYOUT_LITTLEROOT_TOWN",
       "name": "LittlerootTown_Layout",
-      "width": 20,
-      "height": 20,
+      "width": 28,
+      "height": 28,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Petalburg",
+      "secondary_tileset": "gTileset_littleroot_town",
       "border_filepath": "data/layouts/LittlerootTown/border.bin",
       "blockdata_filepath": "data/layouts/LittlerootTown/map.bin"
     },
     {
       "id": "LAYOUT_OLDALE_TOWN",
       "name": "OldaleTown_Layout",
-      "width": 20,
-      "height": 20,
+      "width": 32,
+      "height": 32,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Petalburg",
+      "secondary_tileset": "gTileset_oldale_town",
       "border_filepath": "data/layouts/OldaleTown/border.bin",
       "blockdata_filepath": "data/layouts/OldaleTown/map.bin"
     },
@@ -115,7 +115,7 @@
       "id": "LAYOUT_DEWFORD_TOWN",
       "name": "DewfordTown_Layout",
       "width": 20,
-      "height": 20,
+      "height": 30,
       "primary_tileset": "gTileset_General",
       "secondary_tileset": "gTileset_Dewford",
       "border_filepath": "data/layouts/DewfordTown/border.bin",
@@ -124,8 +124,8 @@
     {
       "id": "LAYOUT_LAVARIDGE_TOWN",
       "name": "LavaridgeTown_Layout",
-      "width": 20,
-      "height": 20,
+      "width": 26,
+      "height": 28,
       "primary_tileset": "gTileset_General",
       "secondary_tileset": "gTileset_Lavaridge",
       "border_filepath": "data/layouts/LavaridgeTown/border.bin",
@@ -144,10 +144,10 @@
     {
       "id": "LAYOUT_VERDANTURF_TOWN",
       "name": "VerdanturfTown_Layout",
-      "width": 20,
-      "height": 20,
+      "width": 28,
+      "height": 22,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Mauville",
+      "secondary_tileset": "gTileset_vendanturf",
       "border_filepath": "data/layouts/VerdanturfTown/border.bin",
       "blockdata_filepath": "data/layouts/VerdanturfTown/map.bin"
     },
@@ -4440,6 +4440,166 @@
       "secondary_tileset": "gTileset_1J",
       "border_filepath": "data/layouts/test/border.bin",
       "blockdata_filepath": "data/layouts/test/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST1",
+      "name": "test1_Layout",
+      "width": 44,
+      "height": 30,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Petalburg",
+      "border_filepath": "data/layouts/test1/border.bin",
+      "blockdata_filepath": "data/layouts/test1/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST2",
+      "name": "test2_Layout",
+      "width": 40,
+      "height": 60,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Slateport",
+      "border_filepath": "data/layouts/test2/border.bin",
+      "blockdata_filepath": "data/layouts/test2/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST3",
+      "name": "test3_Layout",
+      "width": 40,
+      "height": 22,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mauville",
+      "border_filepath": "data/layouts/test3/border.bin",
+      "blockdata_filepath": "data/layouts/test3/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST4",
+      "name": "test4_Layout",
+      "width": 44,
+      "height": 66,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Rustboro",
+      "border_filepath": "data/layouts/test4/border.bin",
+      "blockdata_filepath": "data/layouts/test4/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST5",
+      "name": "test5_Layout",
+      "width": 40,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fortree",
+      "border_filepath": "data/layouts/test5/border.bin",
+      "blockdata_filepath": "data/layouts/test5/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST6",
+      "name": "test6_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Lilycove",
+      "border_filepath": "data/layouts/test6/border.bin",
+      "blockdata_filepath": "data/layouts/test6/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST7",
+      "name": "test7_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test7/border.bin",
+      "blockdata_filepath": "data/layouts/test7/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST8",
+      "name": "test8_Layout",
+      "width": 60,
+      "height": 60,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Sootopolis",
+      "border_filepath": "data/layouts/test8/border.bin",
+      "blockdata_filepath": "data/layouts/test8/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST9",
+      "name": "test9_Layout",
+      "width": 40,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_EverGrande",
+      "border_filepath": "data/layouts/test9/border.bin",
+      "blockdata_filepath": "data/layouts/test9/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST10",
+      "name": "test10_Layout",
+      "width": 28,
+      "height": 28,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_littleroot_town",
+      "border_filepath": "data/layouts/test10/border.bin",
+      "blockdata_filepath": "data/layouts/test10/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST11",
+      "name": "test11_Layout",
+      "width": 32,
+      "height": 32,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_oldale_town",
+      "border_filepath": "data/layouts/test11/border.bin",
+      "blockdata_filepath": "data/layouts/test11/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST12",
+      "name": "test12_Layout",
+      "width": 20,
+      "height": 30,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test12/border.bin",
+      "blockdata_filepath": "data/layouts/test12/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST13",
+      "name": "test13_Layout",
+      "width": 26,
+      "height": 28,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Lavaridge",
+      "border_filepath": "data/layouts/test13/border.bin",
+      "blockdata_filepath": "data/layouts/test13/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST14",
+      "name": "test14_Layout",
+      "width": 20,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fallarbor",
+      "border_filepath": "data/layouts/test14/border.bin",
+      "blockdata_filepath": "data/layouts/test14/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST15",
+      "name": "test15_Layout",
+      "width": 28,
+      "height": 22,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_vendanturf",
+      "border_filepath": "data/layouts/test15/border.bin",
+      "blockdata_filepath": "data/layouts/test15/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST16",
+      "name": "test16_Layout",
+      "width": 20,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/test16/border.bin",
+      "blockdata_filepath": "data/layouts/test16/map.bin"
     }
   ]
 }

@@ -979,3 +979,36 @@ const struct Tileset gTileset_NationalPark =
     .metatileAttributes = gMetatileAttributes_NationalPark,
     .callback = NULL,
 };
+
+const struct Tileset gTileset_littleroot_town =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_littleroot_town,
+    .palettes = gTilesetPalettes_littleroot_town,
+    .metatiles = gMetatiles_littleroot_town,
+    .metatileAttributes = gMetatileAttributes_littleroot_town,
+    .callback = NULL,
+};
+
+const struct Tileset gTileset_oldale_town =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_oldale_town,
+    .palettes = gTilesetPalettes_oldale_town,
+    .metatiles = gMetatiles_oldale_town,
+    .metatileAttributes = gMetatileAttributes_oldale_town,
+    .callback = NULL,
+};
+
+const struct Tileset gTileset_vendanturf =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_vendanturf,
+    .palettes = gTilesetPalettes_vendanturf,
+    .metatiles = gMetatiles_vendanturf,
+    .metatileAttributes = gMetatileAttributes_vendanturf,
+    .callback = NULL,
+};

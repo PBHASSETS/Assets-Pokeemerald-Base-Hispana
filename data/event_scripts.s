@@ -1105,3 +1105,35 @@ EventScript_VsSeekerChargingDone::
 	.include "data/maps/NationalPark/scripts.inc"
 
 	.include "data/maps/test/scripts.inc"
+
+	.include "data/maps/test1/scripts.inc"
+
+	.include "data/maps/test2/scripts.inc"
+
+	.include "data/maps/test3/scripts.inc"
+
+	.include "data/maps/test4/scripts.inc"
+
+	.include "data/maps/test5/scripts.inc"
+
+	.include "data/maps/test6/scripts.inc"
+
+	.include "data/maps/test7/scripts.inc"
+
+	.include "data/maps/test8/scripts.inc"
+
+	.include "data/maps/test9/scripts.inc"
+
+	.include "data/maps/test10/scripts.inc"
+
+	.include "data/maps/test11/scripts.inc"
+
+	.include "data/maps/test12/scripts.inc"
+
+	.include "data/maps/test13/scripts.inc"
+
+	.include "data/maps/test14/scripts.inc"
+
+	.include "data/maps/test15/scripts.inc"
+
+	.include "data/maps/test16/scripts.inc"
