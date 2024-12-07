@@ -167,7 +167,7 @@
       "width": 20,
       "height": 20,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Petalburg",
+      "secondary_tileset": "gTileset_littleroot_town",
       "border_filepath": "data/layouts/Route101/border.bin",
       "blockdata_filepath": "data/layouts/Route101/map.bin"
     },
@@ -177,7 +177,7 @@
       "width": 50,
       "height": 20,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Petalburg",
+      "secondary_tileset": "gTileset_oldale_town",
       "border_filepath": "data/layouts/Route102/border.bin",
       "blockdata_filepath": "data/layouts/Route102/map.bin"
     },
@@ -187,7 +187,7 @@
       "width": 80,
       "height": 22,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Petalburg",
+      "secondary_tileset": "gTileset_oldale_town",
       "border_filepath": "data/layouts/Route103/border.bin",
       "blockdata_filepath": "data/layouts/Route103/map.bin"
     },
@@ -197,7 +197,7 @@
       "width": 40,
       "height": 80,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Rustboro",
+      "secondary_tileset": "gTileset_Dewford",
       "border_filepath": "data/layouts/Route104/border.bin",
       "blockdata_filepath": "data/layouts/Route104/map.bin"
     },
@@ -225,7 +225,7 @@
       "id": "LAYOUT_ROUTE107",
       "name": "Route107_Layout",
       "width": 60,
-      "height": 20,
+      "height": 29,
       "primary_tileset": "gTileset_General",
       "secondary_tileset": "gTileset_Dewford",
       "border_filepath": "data/layouts/Route107/border.bin",
@@ -237,7 +237,7 @@
       "width": 60,
       "height": 20,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Slateport",
+      "secondary_tileset": "gTileset_Dewford",
       "border_filepath": "data/layouts/Route108/border.bin",
       "blockdata_filepath": "data/layouts/Route108/map.bin"
     },
@@ -245,7 +245,7 @@
       "id": "LAYOUT_ROUTE109",
       "name": "Route109_Layout",
       "width": 40,
-      "height": 63,
+      "height": 60,
       "primary_tileset": "gTileset_General",
       "secondary_tileset": "gTileset_Slateport",
       "border_filepath": "data/layouts/Route109/border.bin",
@@ -317,7 +317,7 @@
       "width": 100,
       "height": 20,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Rustboro",
+      "secondary_tileset": "gTileset_oldale_town",
       "border_filepath": "data/layouts/Route116/border.bin",
       "blockdata_filepath": "data/layouts/Route116/map.bin"
     },
@@ -387,7 +387,7 @@
       "width": 140,
       "height": 20,
       "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Lilycove",
+      "secondary_tileset": "gTileset_oldale_town",
       "border_filepath": "data/layouts/Route123/border.bin",
       "blockdata_filepath": "data/layouts/Route123/map.bin"
     },
@@ -4600,6 +4600,356 @@
       "secondary_tileset": "gTileset_Pacifidlog",
       "border_filepath": "data/layouts/test16/border.bin",
       "blockdata_filepath": "data/layouts/test16/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST17",
+      "name": "test17_Layout",
+      "width": 20,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_littleroot_town",
+      "border_filepath": "data/layouts/test17/border.bin",
+      "blockdata_filepath": "data/layouts/test17/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST18",
+      "name": "test18_Layout",
+      "width": 50,
+      "height": 22,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Petalburg",
+      "border_filepath": "data/layouts/test18/border.bin",
+      "blockdata_filepath": "data/layouts/test18/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST19",
+      "name": "test19_Layout",
+      "width": 82,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_oldale_town",
+      "border_filepath": "data/layouts/test19/border.bin",
+      "blockdata_filepath": "data/layouts/test19/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST20",
+      "name": "test20_Layout",
+      "width": 82,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test20/border.bin",
+      "blockdata_filepath": "data/layouts/test20/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST21",
+      "name": "test21_Layout",
+      "width": 40,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test21/border.bin",
+      "blockdata_filepath": "data/layouts/test21/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST22",
+      "name": "test22_Layout",
+      "width": 40,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test22/border.bin",
+      "blockdata_filepath": "data/layouts/test22/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST23",
+      "name": "test23_Layout",
+      "width": 80,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test23/border.bin",
+      "blockdata_filepath": "data/layouts/test23/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST24",
+      "name": "test24_Layout",
+      "width": 60,
+      "height": 29,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test24/border.bin",
+      "blockdata_filepath": "data/layouts/test24/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST25",
+      "name": "test25_Layout",
+      "width": 60,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Dewford",
+      "border_filepath": "data/layouts/test25/border.bin",
+      "blockdata_filepath": "data/layouts/test25/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST26",
+      "name": "test26_Layout",
+      "width": 40,
+      "height": 60,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Slateport",
+      "border_filepath": "data/layouts/test26/border.bin",
+      "blockdata_filepath": "data/layouts/test26/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST27",
+      "name": "test27_Layout",
+      "width": 40,
+      "height": 100,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mauville",
+      "border_filepath": "data/layouts/test27/border.bin",
+      "blockdata_filepath": "data/layouts/test27/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST28",
+      "name": "test28_Layout",
+      "width": 40,
+      "height": 140,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mauville",
+      "border_filepath": "data/layouts/test28/border.bin",
+      "blockdata_filepath": "data/layouts/test28/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST29",
+      "name": "test29_Layout",
+      "width": 40,
+      "height": 60,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Lavaridge",
+      "border_filepath": "data/layouts/test29/border.bin",
+      "blockdata_filepath": "data/layouts/test29/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST30",
+      "name": "test30_Layout",
+      "width": 100,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fallarbor",
+      "border_filepath": "data/layouts/test30/border.bin",
+      "blockdata_filepath": "data/layouts/test30/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST31",
+      "name": "test31_Layout",
+      "width": 40,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fallarbor",
+      "border_filepath": "data/layouts/test31/border.bin",
+      "blockdata_filepath": "data/layouts/test31/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST32",
+      "name": "test32_Layout",
+      "width": 40,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fallarbor",
+      "border_filepath": "data/layouts/test32/border.bin",
+      "blockdata_filepath": "data/layouts/test32/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST33",
+      "name": "test33_Layout",
+      "width": 103,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_oldale_town",
+      "border_filepath": "data/layouts/test33/border.bin",
+      "blockdata_filepath": "data/layouts/test33/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST34",
+      "name": "test34_Layout",
+      "width": 60,
+      "height": 24,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mauville",
+      "border_filepath": "data/layouts/test34/border.bin",
+      "blockdata_filepath": "data/layouts/test34/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST35",
+      "name": "test35_Layout",
+      "width": 80,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mauville",
+      "border_filepath": "data/layouts/test35/border.bin",
+      "blockdata_filepath": "data/layouts/test35/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST36",
+      "name": "test36_Layout",
+      "width": 40,
+      "height": 140,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fortree",
+      "border_filepath": "data/layouts/test36/border.bin",
+      "blockdata_filepath": "data/layouts/test36/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST37",
+      "name": "test37_Layout",
+      "width": 40,
+      "height": 100,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Fortree",
+      "border_filepath": "data/layouts/test37/border.bin",
+      "blockdata_filepath": "data/layouts/test37/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST38",
+      "name": "test38_Layout",
+      "width": 80,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Lilycove",
+      "border_filepath": "data/layouts/test38/border.bin",
+      "blockdata_filepath": "data/layouts/test38/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST39",
+      "name": "test39_Layout",
+      "width": 40,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Lilycove",
+      "border_filepath": "data/layouts/test39/border.bin",
+      "blockdata_filepath": "data/layouts/test39/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST40",
+      "name": "test40_Layout",
+      "width": 140,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_oldale_town",
+      "border_filepath": "data/layouts/test40/border.bin",
+      "blockdata_filepath": "data/layouts/test40/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST41",
+      "name": "test41_Layout",
+      "width": 80,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test41/border.bin",
+      "blockdata_filepath": "data/layouts/test41/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST42",
+      "name": "test42_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test42/border.bin",
+      "blockdata_filepath": "data/layouts/test42/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST43",
+      "name": "test43_Layout",
+      "width": 80,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test43/border.bin",
+      "blockdata_filepath": "data/layouts/test43/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST44",
+      "name": "test44_Layout",
+      "width": 80,
+      "height": 80,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test44/border.bin",
+      "blockdata_filepath": "data/layouts/test44/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST45",
+      "name": "test45_Layout",
+      "width": 120,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test45/border.bin",
+      "blockdata_filepath": "data/layouts/test45/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST46",
+      "name": "test46_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test46/border.bin",
+      "blockdata_filepath": "data/layouts/test46/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST47",
+      "name": "test47_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Mossdeep",
+      "border_filepath": "data/layouts/test47/border.bin",
+      "blockdata_filepath": "data/layouts/test47/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST48",
+      "name": "test48_Layout",
+      "width": 60,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/test48/border.bin",
+      "blockdata_filepath": "data/layouts/test48/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST49",
+      "name": "test49_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/test49/border.bin",
+      "blockdata_filepath": "data/layouts/test49/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST50",
+      "name": "test50_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/test50/border.bin",
+      "blockdata_filepath": "data/layouts/test50/map.bin"
+    },
+    {
+      "id": "LAYOUT_TEST51",
+      "name": "test51_Layout",
+      "width": 80,
+      "height": 40,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/test51/border.bin",
+      "blockdata_filepath": "data/layouts/test51/map.bin"
     }
   ]
 }
