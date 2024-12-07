@@ -1012,3 +1012,36 @@ const struct Tileset gTileset_vendanturf =
     .metatileAttributes = gMetatileAttributes_vendanturf,
     .callback = NULL,
 };
+
+const struct Tileset gTileset_granitecave =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_granitecave,
+    .palettes = gTilesetPalettes_granitecave,
+    .metatiles = gMetatiles_granitecave,
+    .metatileAttributes = gMetatileAttributes_granitecave,
+    .callback = NULL,
+};
+
+const struct Tileset gTileset_mtpyr =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_mtpyr,
+    .palettes = gTilesetPalettes_mtpyr,
+    .metatiles = gMetatiles_mtpyr,
+    .metatileAttributes = gMetatileAttributes_mtpyr,
+    .callback = NULL,
+};
+
+const struct Tileset gTileset_magmahideout =
+{
+    .isCompressed = TRUE,
+    .isSecondary = TRUE,
+    .tiles = gTilesetTiles_magmahideout,
+    .palettes = gTilesetPalettes_magmahideout,
+    .metatiles = gMetatiles_magmahideout,
+    .metatileAttributes = gMetatileAttributes_magmahideout,
+    .callback = NULL,
+};

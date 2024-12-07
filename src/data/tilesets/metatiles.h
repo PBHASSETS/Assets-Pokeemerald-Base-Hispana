@@ -258,3 +258,12 @@ const u16 gMetatileAttributes_oldale_town[] = INCBIN_U16("data/tilesets/secondar
 
 const u16 gMetatiles_vendanturf[] = INCBIN_U16("data/tilesets/secondary/vendanturf/metatiles.bin");
 const u16 gMetatileAttributes_vendanturf[] = INCBIN_U16("data/tilesets/secondary/vendanturf/metatile_attributes.bin");
+
+const u16 gMetatiles_granitecave[] = INCBIN_U16("data/tilesets/secondary/granitecave/metatiles.bin");
+const u16 gMetatileAttributes_granitecave[] = INCBIN_U16("data/tilesets/secondary/granitecave/metatile_attributes.bin");
+
+const u16 gMetatiles_mtpyr[] = INCBIN_U16("data/tilesets/secondary/mtpyr/metatiles.bin");
+const u16 gMetatileAttributes_mtpyr[] = INCBIN_U16("data/tilesets/secondary/mtpyr/metatile_attributes.bin");
+
+const u16 gMetatiles_magmahideout[] = INCBIN_U16("data/tilesets/secondary/magmahideout/metatiles.bin");
+const u16 gMetatileAttributes_magmahideout[] = INCBIN_U16("data/tilesets/secondary/magmahideout/metatile_attributes.bin");
