@@ -1156,84 +1156,43 @@ EventScript_VsSeekerChargingDone::
 
 
 
-	.include "data/maps/test/scripts.inc"
 
-	.include "data/maps/test1/scripts.inc"
 
-	.include "data/maps/test2/scripts.inc"
 
-	.include "data/maps/test3/scripts.inc"
 
-	.include "data/maps/test4/scripts.inc"
 
-	.include "data/maps/test5/scripts.inc"
 
-	.include "data/maps/test6/scripts.inc"
 
-	.include "data/maps/test7/scripts.inc"
 
-	.include "data/maps/test8/scripts.inc"
 
-	.include "data/maps/test9/scripts.inc"
 
-	.include "data/maps/test10/scripts.inc"
 
-	.include "data/maps/test11/scripts.inc"
 
-	.include "data/maps/test12/scripts.inc"
 
-	.include "data/maps/test13/scripts.inc"
 
-	.include "data/maps/test14/scripts.inc"
 
-	.include "data/maps/test15/scripts.inc"
 
-	.include "data/maps/test16/scripts.inc"
 
-	.include "data/maps/test17/scripts.inc"
 
-	.include "data/maps/test18/scripts.inc"
 
-	.include "data/maps/test19/scripts.inc"
 
-	.include "data/maps/test20/scripts.inc"
 
-	.include "data/maps/test21/scripts.inc"
 
-	.include "data/maps/test22/scripts.inc"
 
-	.include "data/maps/test23/scripts.inc"
 
-	.include "data/maps/test24/scripts.inc"
 
-	.include "data/maps/test25/scripts.inc"
 
-	.include "data/maps/test26/scripts.inc"
 
-	.include "data/maps/test27/scripts.inc"
 
-	.include "data/maps/test28/scripts.inc"
 
-	.include "data/maps/test29/scripts.inc"
 
-	.include "data/maps/test30/scripts.inc"
 
-	.include "data/maps/test31/scripts.inc"
 
-	.include "data/maps/test32/scripts.inc"
 
-	.include "data/maps/test33/scripts.inc"
 
-	.include "data/maps/test34/scripts.inc"
 
-	.include "data/maps/test35/scripts.inc"
 
-	.include "data/maps/test36/scripts.inc"
 
-	.include "data/maps/test37/scripts.inc"
 
-	.include "data/maps/test38/scripts.inc"
 
-	.include "data/maps/test39/scripts.inc"
 
-	.include "data/maps/test40/scripts.inc"

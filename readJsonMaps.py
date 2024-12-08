@@ -3,7 +3,7 @@ import json
 
 rootPath = "data/maps"
 
-filterParameter =  "MAPSEC_PALLET_TOWN"
+filterParameter =  "MAPSEC_ABANDONED_SHIP"
 
 def readJson(pathJson):
     with open(pathJson, 'r') as file:
